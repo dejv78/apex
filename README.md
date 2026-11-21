@@ -1,2 +1,2 @@
 # paxt
-Palette exploration toolkit
+Palette exploration tool
