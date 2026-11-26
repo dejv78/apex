@@ -3,19 +3,15 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 concurrency:
   group: pages
   cancel-in-progress: true
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,9 +21,36 @@ jobs:
       - run: npm ci
       - run: npm test -- --watch=false
       - run: npm run build:pages
+      # Single-page app fallback: unknown paths serve the app (client-side routing).
       - run: cp dist/paxt/browser/index.html dist/paxt/browser/404.html
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/paxt/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      actions: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # GitHub sometimes makes a freshly uploaded artifact visible late, which makes deploy-pages
+      # fail with "No artifacts named github-pages were found"
+      # (https://github.com/actions/deploy-pages/issues/451). Wait until the API lists it.
+      - name: Wait for the Pages artifact to become visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 12); do
+            n=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+              --jq '[.artifacts[] | select(.name == "github-pages")] | length')
+            if [ "$n" -ge 1 ]; then echo "Artifact visible after $((i - 1)) retries"; exit 0; fi
+            echo "Artifact not visible yet ($i/12)"; sleep 5
+          done
+          echo "Artifact still not listed; trying the deployment anyway"
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

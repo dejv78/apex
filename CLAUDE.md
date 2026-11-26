@@ -28,6 +28,7 @@ CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy ru
 - Mixbox adds ~156 kB to the bundle, so the initial budget in `angular.json` is 900 kB (warning) / 1.2 MB (error). Mixbox and the pigment data (Artist Pigments) are both CC BY-NC 4.0: non-commercial only, attribution required (footer in the explorer).
 - The convex hull of pigment masstones is not the mixture gamut (see `docs/domain/gamut.md`).
 - `hex` in the pigment data is clipped to sRGB; `oklab` is the primary value. A test checks that hex matches the clamped OKLab value; past corrections are in `docs/domain/pigment-data.md`.
+- The deploy workflow has a "wait for artifact" step because GitHub sometimes lists the uploaded Pages artifact late, failing `deploy-pages` with "No artifacts named github-pages" (upstream issue actions/deploy-pages#451). If it fails anyway, re-run the job.
 
 ## Conventions
 
