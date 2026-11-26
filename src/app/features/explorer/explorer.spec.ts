@@ -51,12 +51,12 @@ describe('Explorer controls', () => {
 
   it('follows the click workflow: anchor, partner, swap partner, remove', async () => {
     const { click, dots, ends, labels, el } = await setup();
-    // Start from the pre-selected pair [Lemon yellow, Phthalo blue redish]; remove both.
+    // Start from the pre-selected pair [Lemon yellow, Phthalo blue reddish]; remove both.
     await click('Lemon yellow'); // anchor removed -> blue becomes the anchor, no pair left
     expect(dots()).toBe(0);
     expect(ends()).toBe(1);
     expect(labels()).toEqual(['Anchor', 'Mix with']);
-    await click('Phthalo blue redish'); // the only selected pigment is unselected
+    await click('Phthalo blue reddish'); // the only selected pigment is unselected
     expect(ends()).toBe(0);
     expect(labels()).toEqual(['Anchor']);
 
@@ -115,7 +115,7 @@ describe('Explorer controls', () => {
         .find((t) => t.includes('(anchor)'));
     expect(anchorTitle()).toContain('Lemon yellow');
 
-    await click('Phthalo blue redish', { ctrlKey: true }); // partner -> anchor, roles swap
+    await click('Phthalo blue reddish', { ctrlKey: true }); // partner -> anchor, roles swap
     expect(ends()).toBe(2);
     expect(anchorTitle()).toContain('Phthalo blue');
 

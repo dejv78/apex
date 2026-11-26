@@ -19,7 +19,7 @@ describe('MixboxModel', () => {
   });
 
   it('mixes blue and yellow to green (subtractive), where linear OKLab mixing gives gray', () => {
-    const blue = pigmentById('phthalo-blue-redish');
+    const blue = pigmentById('phthalo-blue-reddish');
     const yellow = pigmentById('lemon-yellow');
     const mixed = oklabToOklch(mixOf(blue.id, yellow.id));
     expect(mixed.h).toBeGreaterThan(120);

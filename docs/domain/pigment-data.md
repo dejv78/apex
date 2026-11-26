@@ -23,6 +23,11 @@ so it cannot drive a physical mixing model (Kubelka-Munk) by itself.
 
 - `id` is the unique key (slug of the name, with the CI code appended where names collide).
   Colour Index codes are not unique: PBr7 covers raw/burnt umber and sienna.
+- Ids are keys that code and tests refer to (for example the default selection in `ExplorerState`).
+  When fixing a typo, prefer changing only `name`; if an `id` changes too, update every reference
+  (`grep` for the old id). CI catches a missed one: the tests fail, and the deploy workflow runs them
+  before building, so a broken id never reaches the live site (this happened with
+  `phthalo-blue-redish`, 2026-11-26).
 - `oklab` is the primary data. OKLCH is derived (`oklabToOklch`) and not stored.
 - `hex` is a display value. Pigments outside the sRGB gamut have clipped hex values, so hex and
   OKLab legitimately differ for saturated cyans, greens and yellows.

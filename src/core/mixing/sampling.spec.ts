@@ -14,7 +14,7 @@ import {
 
 const model = new MixboxModel();
 const yellow = pigmentById('lemon-yellow');
-const blue = pigmentById('phthalo-blue-redish');
+const blue = pigmentById('phthalo-blue-reddish');
 const area = (labs: { a: number; b: number }[]) =>
   polygonArea(convexHull(labs.map((c) => ({ x: c.a, y: c.b }))));
 

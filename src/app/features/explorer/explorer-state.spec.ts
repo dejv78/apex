@@ -10,8 +10,8 @@ describe('ExplorerState', () => {
   it('starts in 2D with a pre-selected pair and the mixture gamut shown', () => {
     const state = setup();
     expect(state.mode()).toBe('2d');
-    expect(state.selection()).toEqual(['lemon-yellow', 'phthalo-blue-redish']);
-    expect(state.pair()?.map((p) => p.id)).toEqual(['lemon-yellow', 'phthalo-blue-redish']);
+    expect(state.selection()).toEqual(['lemon-yellow', 'phthalo-blue-reddish']);
+    expect(state.pair()?.map((p) => p.id)).toEqual(['lemon-yellow', 'phthalo-blue-reddish']);
     expect(state.showMixtureGamut()).toBe(true);
     expect(state.mixtureSamples().length).toBeGreaterThan(5000);
   });
@@ -63,7 +63,7 @@ describe('ExplorerState', () => {
     expect(state.isTaken('lemon-yellow', 1)).toBe(true);
     expect(state.isTaken('lemon-yellow', 0)).toBe(false);
     state.pickInSlot(0, null);
-    expect(state.selection()).toEqual(['phthalo-blue-redish']);
+    expect(state.selection()).toEqual(['phthalo-blue-reddish']);
     expect(state.slots().map((s) => s.label)).toEqual(['Anchor', 'Mix with']);
   });
 

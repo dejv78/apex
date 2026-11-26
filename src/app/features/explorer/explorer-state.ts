@@ -48,7 +48,7 @@ export class ExplorerState {
   readonly showMixtureCloud = signal(false);
 
   /** Ids of the pigments to mix, anchor first (see `selection.ts` for the rules). */
-  readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-redish']);
+  readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-reddish']);
   readonly slots = computed(() => slotsFor(this.selection()));
 
   readonly visible = computed(() =>
