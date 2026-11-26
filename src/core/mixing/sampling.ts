@@ -65,3 +65,53 @@ export function samplePairMixtures(
   }
   return out;
 }
+
+/** Distance between two colors on the OKLab a/b plane (lightness is ignored). */
+export function abDistance(x: Oklab, y: Oklab): number {
+  return Math.hypot(x.a - y.a, x.b - y.b);
+}
+
+/**
+ * Mixes of A and B that are equally spaced along the mixing path on the a/b plane, so close
+ * pigments get few points and distant pigments many (about path length / `spacing` intervals).
+ *
+ * Both pure pigments are always the first and last point. The path is measured on a fine probe
+ * of `probeSteps` ratio steps; each interior point's ratio is then solved on that measured
+ * path and mixed exactly. The achieved spacing is the path length divided by a whole number of
+ * intervals, so it equals `spacing` only approximately.
+ */
+export function evenlySpacedMixCurve(
+  model: MixingModel,
+  a: Pigment,
+  b: Pigment,
+  spacing: number,
+  probeSteps = 256,
+): CurvePoint[] {
+  if (!(spacing > 0)) throw new Error('spacing must be positive');
+  const probe = mixCurve(model, a, b, probeSteps);
+  const length = [0];
+  for (let i = 1; i < probe.length; i++) {
+    length.push(length[i - 1] + abDistance(probe[i - 1].color, probe[i].color));
+  }
+  const total = length[length.length - 1];
+  const intervals = Math.max(1, Math.round(total / spacing));
+
+  const out: CurvePoint[] = [probe[0]];
+  let j = 1;
+  for (let k = 1; k < intervals; k++) {
+    const target = (total * k) / intervals;
+    while (length[j] < target) j++;
+    const span = length[j] - length[j - 1];
+    const fraction = span > 0 ? (target - length[j - 1]) / span : 0;
+    const t = (j - 1 + fraction) / probeSteps;
+    out.push({
+      t,
+      color: model.mix([
+        { pigment: a, weight: 1 - t },
+        { pigment: b, weight: t },
+      ]),
+    });
+  }
+  out.push(probe[probe.length - 1]);
+  return out;
+}

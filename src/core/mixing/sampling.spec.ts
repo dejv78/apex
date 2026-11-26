@@ -3,7 +3,13 @@ import { srgbSurfaceSamples } from '../gamut/srgb-gamut';
 import { oklabToOklch } from '../color/color';
 import { PIGMENTS, pigmentById } from '../pigments/pigments';
 import { MixboxModel } from './mixbox-model';
-import { linearOklabCurve, mixCurve, samplePairMixtures } from './sampling';
+import {
+  abDistance,
+  evenlySpacedMixCurve,
+  linearOklabCurve,
+  mixCurve,
+  samplePairMixtures,
+} from './sampling';
 
 const model = new MixboxModel();
 const yellow = pigmentById('lemon-yellow');
@@ -50,5 +56,53 @@ describe('mixing performance', () => {
     expect(samples.length).toBeGreaterThan(30000);
     // Generous bound: a regression guard, not a benchmark (see docs/domain/performance.md).
     expect(ms).toBeLessThan(1000);
+  });
+});
+
+describe('evenlySpacedMixCurve', () => {
+  const SPACING = 0.006;
+  const far = () => evenlySpacedMixCurve(model, yellow, pigmentById('ultramarine-deep'), SPACING);
+  const near = () =>
+    evenlySpacedMixCurve(
+      model,
+      pigmentById('irgazin-yellow'),
+      pigmentById('nickel-azo-yellow'),
+      SPACING,
+    );
+
+  it('gives close pigments fewer points than distant ones', () => {
+    expect(near().length).toBeLessThan(far().length);
+    expect(far().length).toBeGreaterThan(30);
+  });
+
+  it('starts and ends exactly at the pure pigments and has increasing ratios', () => {
+    const curve = far();
+    expect(curve[0].t).toBe(0);
+    expect(curve[curve.length - 1].t).toBe(1);
+    for (let i = 1; i < curve.length; i++) expect(curve[i].t).toBeGreaterThan(curve[i - 1].t);
+  });
+
+  it('spaces consecutive points evenly along the path, close to the requested spacing', () => {
+    const curve = far();
+    // Chords are slightly shorter than the arcs on bends, hence the tolerances.
+    const gaps = curve.slice(1).map((p, i) => abDistance(curve[i].color, p.color));
+    for (const g of gaps) {
+      expect(g).toBeGreaterThan(SPACING * 0.6);
+      expect(g).toBeLessThan(SPACING * 1.15);
+    }
+    const mean = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+    expect(Math.max(...gaps) - Math.min(...gaps)).toBeLessThan(mean * 0.5);
+  });
+
+  it('number of intervals follows the path length divided by the spacing', () => {
+    const probe = mixCurve(model, yellow, pigmentById('ultramarine-deep'), 2000);
+    let length = 0;
+    for (let i = 1; i < probe.length; i++) length += abDistance(probe[i - 1].color, probe[i].color);
+    expect(far().length - 1).toBe(Math.round(length / SPACING));
+  });
+
+  it('returns just both ends for identical pigments and rejects a bad spacing', () => {
+    expect(evenlySpacedMixCurve(model, yellow, yellow, SPACING).length).toBe(2);
+    expect(() => evenlySpacedMixCurve(model, yellow, blue, 0)).toThrow();
   });
 });

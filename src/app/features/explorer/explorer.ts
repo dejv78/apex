@@ -6,7 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { convexHull, polygonArea, type Point } from '../../../core/gamut/convex-hull';
 import { srgbSurfaceSamples } from '../../../core/gamut/srgb-gamut';
-import { linearOklabCurve, mixCurve, samplePairMixtures } from '../../../core/mixing/sampling';
+import {
+  evenlySpacedMixCurve,
+  linearOklabCurve,
+  samplePairMixtures,
+} from '../../../core/mixing/sampling';
 import { AnchoredModel } from '../../../core/mixing/anchored-model';
 import { MixboxModel } from '../../../core/mixing/mixbox-model';
 import type { MixingModel } from '../../../core/mixing/mixing-model';
@@ -24,8 +28,13 @@ const SIZE = 600;
 const scale = SIZE / 2 / EXTENT;
 
 const MIXTURE_STEPS = 8;
-/** Samples along a two-pigment transition (steps + 1 dots, ratio in equal steps). */
-const TRANSITION_STEPS = 60;
+/**
+ * Distance between neighboring dots of a transition, in SVG units (dots have radius 4.5, so
+ * neighbors overlap slightly). Close pigments get few dots, distant pigments many.
+ */
+const DOT_SPACING = 6;
+/** Resolution of the straight-line baseline. */
+const LINEAR_STEPS = 60;
 /** Distance in SVG units below which a pigment's true color and its model output look the same. */
 const RING_MIN_DISTANCE = 4;
 
@@ -123,7 +132,7 @@ export class Explorer {
     const pair = this.pair();
     if (!pair) return null;
     const [a, b] = pair;
-    const samples = mixCurve(this.model(), a, b, TRANSITION_STEPS);
+    const samples = evenlySpacedMixCurve(this.model(), a, b, DOT_SPACING / scale);
     const dots = samples.map((s) => ({
       ...toSvg(s.color.a, s.color.b),
       hex: oklabToHex(s.color),
@@ -134,12 +143,13 @@ export class Explorer {
       const gap = Math.hypot(truth.x - dot.x, truth.y - dot.y);
       return { pigment, dot, truth: gap > RING_MIN_DISTANCE ? truth : null };
     };
-    const linear = linearOklabCurve(a, b, TRANSITION_STEPS)
+    const linear = linearOklabCurve(a, b, LINEAR_STEPS)
       .map((s) => toSvg(s.color.a, s.color.b))
       .map((p) => `${p.x},${p.y}`)
       .join(' ');
     return {
       dots: dots.slice(1, -1),
+      mixes: dots.length - 2,
       from: end(a, dots[0]),
       to: end(b, dots[dots.length - 1]),
       linear,

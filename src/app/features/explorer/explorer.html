@@ -99,11 +99,12 @@
         }
       </mat-select>
     </mat-form-field>
-    @if (transition()) {
+    @if (transition(); as t) {
       <p class="hint">
-        Dots show {{ model().label }} mixtures from 100% "From" to 100% "To" in equal ratio steps.
-        Hover a dot for its ratio. Without anchoring, a ring marks a pigment's true color where the
-        model cannot reproduce it.
+        {{ t.mixes }} {{ model().label }} mixtures from 100% "From" to 100% "To", equally spaced
+        along the path, so distant pigments get more dots than close ones. Hover a dot for its
+        ratio. Without anchoring, a ring marks a pigment's true color where the model cannot
+        reproduce it.
       </p>
     } @else {
       <p class="hint">Choose two pigments, or click two pigments on the plot.</p>
