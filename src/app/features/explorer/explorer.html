@@ -48,63 +48,65 @@
           <title>{{ label(m.pigment) }}</title>
         </circle>
       }
-      @if (curve(); as c) {
-        <polyline class="curve-linear" [attr.points]="c.linearPoints" />
-        <polyline class="curve-real" [attr.points]="c.realPoints" />
-      }
-      @if (result(); as r) {
-        @for (s of selectedMarkers(); track $index) {
-          <line class="link" [attr.x1]="s.x" [attr.y1]="s.y" [attr.x2]="r.x" [attr.y2]="r.y" />
+      @if (transition(); as t) {
+        @if (showLinear()) {
+          <polyline class="curve-linear" [attr.points]="t.linear" />
         }
-        <circle class="mix" [attr.cx]="r.x" [attr.cy]="r.y" r="11" [attr.fill]="r.hex" />
+        @for (end of [t.from, t.to]; track end.pigment.id) {
+          @if (end.truth; as truth) {
+            <circle class="truth" [attr.cx]="truth.x" [attr.cy]="truth.y" r="11">
+              <title>{{ end.pigment.name }}: true color, outside what the model reproduces</title>
+            </circle>
+          }
+        }
+        @for (dot of t.dots; track $index) {
+          <circle class="dot" [attr.cx]="dot.x" [attr.cy]="dot.y" r="4.5" [attr.fill]="dot.hex">
+            <title>{{ dot.tip }}</title>
+          </circle>
+        }
+        @for (end of [t.from, t.to]; track end.pigment.id) {
+          <circle
+            class="end"
+            [attr.cx]="end.dot.x"
+            [attr.cy]="end.dot.y"
+            r="8"
+            [attr.fill]="end.dot.hex"
+          >
+            <title>{{ label(end.pigment) }}</title>
+          </circle>
+        }
       }
     </svg>
   </section>
 
   <aside class="panel">
-    <h2>Mixer</h2>
-    @for (slot of slots(); track $index; let i = $index) {
-      <div class="slot">
-        <mat-form-field>
-          <mat-label>Pigment {{ i + 1 }}</mat-label>
-          <mat-select [value]="slot.pigmentId" (selectionChange)="setPigment(i, $event.value)">
-            <mat-option [value]="null">None</mat-option>
-            @for (p of allPigments; track p.id) {
-              <mat-option [value]="p.id">{{ label(p) }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-slider min="0" max="100" step="1" [disabled]="slot.pigmentId === null">
-          <input matSliderThumb [value]="slot.weight" (valueChange)="setWeight(i, $event)" />
-        </mat-slider>
-      </div>
-    }
-
-    @if (curve(); as c) {
-      <div class="strip" aria-label="Mixing ratio gradient, pigment 1 to pigment 2">
-        @for (step of c.strip; track step.t) {
-          <span [style.background]="step.hex"></span>
+    <h2>Mix two pigments</h2>
+    <mat-form-field>
+      <mat-label>From</mat-label>
+      <mat-select [value]="pigmentA()" (selectionChange)="setA($event.value)">
+        <mat-option [value]="null">None</mat-option>
+        @for (p of allPigments; track p.id) {
+          <mat-option [value]="p.id">{{ label(p) }}</mat-option>
         }
-      </div>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>To</mat-label>
+      <mat-select [value]="pigmentB()" (selectionChange)="setB($event.value)">
+        <mat-option [value]="null">None</mat-option>
+        @for (p of allPigments; track p.id) {
+          <mat-option [value]="p.id">{{ label(p) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (transition()) {
       <p class="hint">
-        Solid curve: {{ model.label }} mixing. Dashed: straight OKLab interpolation.
+        Dots show {{ model.label }} mixtures from 100% "From" to 100% "To" in equal ratio steps.
+        Hover a dot for its ratio. A ring marks a pigment's true color where the model cannot
+        reproduce it.
       </p>
-    }
-
-    @if (result(); as r) {
-      <div class="result">
-        <div class="swatch" [style.background]="r.hex"></div>
-        <dl>
-          <dt>Result</dt>
-          <dd>{{ r.hex }}</dd>
-          <dt>OKLCH</dt>
-          <dd>
-            L {{ r.lch.l.toFixed(3) }} · C {{ r.lch.c.toFixed(3) }} · h {{ r.lch.h.toFixed(0) }}°
-          </dd>
-        </dl>
-      </div>
     } @else {
-      <p>Pick at least one pigment with a non-zero amount.</p>
+      <p class="hint">Choose two pigments, or click two pigments on the plot.</p>
     }
 
     <h2>View</h2>
@@ -116,6 +118,9 @@
     </mat-slide-toggle>
     <mat-slide-toggle [checked]="showMixtures()" (change)="showMixtures.set($event.checked)">
       Mixture gamut (all pairs)
+    </mat-slide-toggle>
+    <mat-slide-toggle [checked]="showLinear()" (change)="showLinear.set($event.checked)">
+      Straight OKLab line
     </mat-slide-toggle>
     <mat-slide-toggle [checked]="showSrgb()" (change)="showSrgb.set($event.checked)">
       sRGB gamut
@@ -136,7 +141,7 @@
         <dd>{{ m.count }} colors in {{ m.ms.toFixed(0) }} ms</dd>
       }
     </dl>
-    <p class="hint">Click a pigment to add it to the mixer.</p>
+    <p class="hint">Click a pigment to use it as an end of the transition.</p>
   </aside>
 </div>
 

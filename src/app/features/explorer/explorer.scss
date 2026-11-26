@@ -55,15 +55,6 @@
 .pigment.fugitive {
   stroke-dasharray: 2 2;
 }
-.link {
-  stroke: #ffffff;
-  stroke-opacity: 0.7;
-  stroke-dasharray: 3 3;
-}
-.mix {
-  stroke: #ffffff;
-  stroke-width: 3;
-}
 .panel {
   background: #6a6a6a;
   color: #f2f2f2;
@@ -76,28 +67,6 @@
 .panel h2 {
   margin: 0.5rem 0 0;
   font-size: 1rem;
-}
-.slot {
-  display: flex;
-  flex-direction: column;
-}
-.slot mat-form-field {
-  width: 100%;
-}
-.slot mat-slider {
-  width: 100%;
-  margin: 0;
-}
-.result {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-.swatch {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 8px;
-  border: 2px solid #fff;
 }
 dl {
   margin: 0;
@@ -133,11 +102,6 @@ dd {
   stroke: #ffd54f;
   stroke-opacity: 0.8;
 }
-.curve-real {
-  fill: none;
-  stroke: #ffffff;
-  stroke-width: 2.5;
-}
 .curve-linear {
   fill: none;
   stroke: #ffffff;
@@ -145,13 +109,22 @@ dd {
   stroke-width: 1.5;
   stroke-dasharray: 6 4;
 }
-.strip {
-  display: flex;
-  height: 1.5rem;
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid #fff;
+
+.dot {
+  stroke: #222222;
+  stroke-opacity: 0.5;
+  stroke-width: 0.5;
 }
-.strip span {
-  flex: 1;
+.end {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.truth {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.8;
+  stroke-width: 2;
+}
+.panel mat-form-field {
+  width: 100%;
 }

@@ -8,12 +8,13 @@ describe('App routing', () => {
     TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
   });
 
-  it('renders the explorer with the app name and pigment markers at the root', async () => {
+  it('renders the explorer with the app name, pigment markers and a mixing transition at the root', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
     const el = harness.routeNativeElement as HTMLElement;
     expect(el.textContent).toContain('Paxt');
     expect(el.querySelectorAll('circle.pigment').length).toBeGreaterThan(20);
-    expect(el.querySelector('circle.mix')).not.toBeNull();
+    expect(el.querySelectorAll('circle.dot').length).toBe(59);
+    expect(el.querySelectorAll('circle.end').length).toBe(2);
   });
 });
