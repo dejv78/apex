@@ -22,7 +22,8 @@ export class AnchoredModel implements MixingModel {
 
   constructor(private readonly base: MixingModel) {
     this.id = `${base.id}-anchored`;
-    this.label = `${base.label} (anchored)`;
+    // The correction is an implementation detail, so users see the base model's name.
+    this.label = base.label;
   }
 
   /** Offset from the model's pure-pigment output to the pigment's true color. */

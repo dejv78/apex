@@ -51,7 +51,7 @@ describe('AnchoredModel', () => {
     ]);
     expect(dist(x, y)).toBeLessThan(1e-12);
     expect(model.id).toBe('mixbox-anchored');
-    expect(model.label).toContain('Mixbox');
+    expect(model.label).toBe('Mixbox'); // users see the base model's name, not the correction
   });
 
   it('barely changes pigments that Mixbox already reproduces (inside sRGB)', () => {

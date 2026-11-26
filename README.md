@@ -1,3 +1,3 @@
-# paxt
+# Artists palette explorer
 
-Palette exploration tool
+Palette exploration tool for painters (code name: paxt).

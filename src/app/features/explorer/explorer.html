@@ -1,8 +1,9 @@
 <mat-toolbar class="bar">
-  <span>Paxt</span>
+  <img class="logo" src="logo.svg" alt="" width="46" height="46" />
+  <h1 class="title">Artists palette explorer</h1>
   <span class="spacer"></span>
   <span class="hint">
-    {{ state.mode() === '3d' ? 'OKLab color cylinder' : 'OKLab a/b plane' }} ·
+    {{ state.mode() === '3d' ? 'OKLab color cylinder' : 'OKLab hue and chroma map' }} ·
     {{ state.model().label }} mixing
   </span>
   <mat-button-toggle-group

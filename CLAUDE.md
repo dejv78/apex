@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-paxt is an educational web app for painters: color relationships, gamut, and visualizing how physical pigments mix. Angular, hosted on GitHub Pages at `/paxt/`. Personal, non-commercial project that may become public. Sibling project `../moody` is inspiration and the seed pigment dataset (`src/app/color-wheel/pigments.ts`), not code to port.
+paxt (shown to users as "Artists palette explorer", ADR 0011) is an educational web app for painters: color relationships, gamut, and visualizing how physical pigments mix. Angular, hosted on GitHub Pages at `/paxt/`. Personal, non-commercial project that may become public. Sibling project `../moody` is inspiration and the seed pigment dataset (`src/app/color-wheel/pigments.ts`), not code to port.
 
 Read `docs/roadmap.md` for current status and `docs/decisions/` for why things are the way they are. Work proceeds one milestone at a time, each approved by the user before the next starts.
 

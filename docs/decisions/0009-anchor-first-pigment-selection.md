@@ -33,6 +33,6 @@ replaced "the last two clicked", which made it awkward to compare one pigment ag
 
 - The UI label of the ADR 0008 correction is "Correct mixes to true pigment colors", because
   "anchor" now means the first selected pigment. Code and ADR 0008 still call the model
-  `AnchoredModel`; the toolbar label of the model (`Mixbox (anchored)`) also still uses that word.
+  `AnchoredModel`; the toolbar no longer shows that word (ADR 0011).
 - Hidden pigments (`hideByDefault`) can be selected through a dropdown but not clicked on the plot
   until "Show all pigments" is on.

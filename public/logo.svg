@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Artist palette with splashes of paint">
+<!-- Splash centers (viewBox units): yellow (34.41, 48.84), magenta (65.17, 30.04), cyan (99.47, 41.18). Magenta is equally far from yellow and cyan. The splash group is the original layout turned 12 degrees counterclockwise around (64, 63). Thumb hole center (50.58, 86.34). -->
+<path d="M66 12C34 12 8 34 8 62C8 92 32 116 64 116C80 116 88 108 88 99C88 90 80 88 80 80C80 71 89 67 99 67C115 67 122 56 122 45C122 26 98 12 66 12Z M50.58 86.34m-8.5 0a8.5 8.5 0 1 0 17.0 0a8.5 8.5 0 1 0 -17.0 0" fill="#fbfbfc" fill-rule="evenodd" stroke="#a9abb3" stroke-width="3" stroke-linejoin="round"/>
+<path d="M44.4 44.5 Q46.8 46.6 46.8 50.6 Q46.7 54.5 44.2 57.3 Q41.8 60.1 39.1 60.0 Q36.4 60.0 31.9 59.4 Q27.4 58.8 26.4 55.7 Q25.5 52.6 24.8 50.4 Q24.1 48.1 24.6 44.9 Q25.0 41.6 27.4 40.7 Q29.8 39.7 33.2 37.7 Q36.6 35.6 39.3 39.0 Q41.9 42.3 44.4 44.5Z" fill="#ffb800"/>
+<circle cx="20.8" cy="42.5" r="3.0" fill="#ffb800"/>
+<circle cx="49.6" cy="57.9" r="2.2" fill="#ffb800"/>
+<circle cx="21.5" cy="55.7" r="1.6" fill="#ffb800"/>
+<ellipse cx="30.4" cy="44.5" rx="3.2" ry="2.0" transform="rotate(-30 30.4 44.5)" fill="#fff" opacity="0.45"/>
+<path d="M73.7 25.9 Q74.8 27.6 74.4 30.7 Q74.0 33.7 72.8 36.3 Q71.6 38.8 69.4 40.1 Q67.2 41.4 64.0 40.9 Q60.9 40.4 59.1 37.9 Q57.2 35.5 54.7 32.4 Q52.2 29.3 54.3 27.0 Q56.5 24.6 58.7 20.9 Q60.9 17.2 64.3 18.2 Q67.8 19.3 70.2 21.8 Q72.6 24.2 73.7 25.9Z" fill="#e5167d"/>
+<circle cx="64.5" cy="18.6" r="2.8" fill="#e5167d"/>
+<circle cx="53.1" cy="40.8" r="2.2" fill="#e5167d"/>
+<circle cx="80.1" cy="33.0" r="1.6" fill="#e5167d"/>
+<ellipse cx="61.1" cy="25.7" rx="3.2" ry="2.0" transform="rotate(-30 61.1 25.7)" fill="#fff" opacity="0.45"/>
+<path d="M107.5 36.8 Q110.0 38.8 109.3 42.3 Q108.7 45.8 107.3 47.9 Q105.9 49.9 103.4 50.8 Q101.0 51.6 97.2 51.4 Q93.5 51.3 92.5 48.9 Q91.4 46.6 89.6 44.0 Q87.7 41.4 90.3 38.6 Q92.9 35.7 94.7 32.4 Q96.6 29.1 99.4 29.8 Q102.2 30.6 103.6 32.7 Q105.0 34.7 107.5 36.8Z" fill="#00a8e1"/>
+<circle cx="105.7" cy="29.3" r="2.8" fill="#00a8e1"/>
+<circle cx="88.0" cy="49.8" r="2.2" fill="#00a8e1"/>
+<circle cx="93.2" cy="54.8" r="1.6" fill="#00a8e1"/>
+<ellipse cx="95.8" cy="37.2" rx="2.9" ry="1.8" transform="rotate(-30 95.8 37.2)" fill="#fff" opacity="0.45"/>
+</svg>

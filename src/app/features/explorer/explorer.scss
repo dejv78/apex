@@ -74,3 +74,27 @@
 .loading {
   padding: 2rem;
 }
+
+.logo {
+  display: block;
+  height: 46px;
+  width: 46px;
+  margin-right: 0.75rem;
+}
+.title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.65rem;
+  line-height: 1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .hint {
+    display: none;
+  }
+  .title {
+    font-size: 1.25rem;
+  }
+}

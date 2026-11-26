@@ -12,7 +12,7 @@ describe('App routing', () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
     const el = harness.routeNativeElement as HTMLElement;
-    expect(el.textContent).toContain('Paxt');
+    expect(el.textContent).toContain('Artists palette explorer');
     expect(el.querySelectorAll('circle.pigment').length).toBeGreaterThan(20);
     expect(el.querySelectorAll('circle.dot').length).toBeGreaterThan(10);
     expect(el.querySelectorAll('circle.end').length).toBe(2);

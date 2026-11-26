@@ -164,4 +164,20 @@ describe('Explorer controls', () => {
     expect(el.querySelector('app-plot-2d')).not.toBeNull();
     expect(el.querySelectorAll('circle.end').length).toBe(2);
   });
+
+  it('shows the logo, the title and the view name with its color space in the toolbar', async () => {
+    const { fixture, el } = await setup();
+    expect(el.querySelector('.bar h1.title')!.textContent).toContain('Artists palette explorer');
+    expect(el.querySelector('.bar img.logo')!.getAttribute('src')).toBe('logo.svg');
+
+    const hint = () => el.querySelector('.bar .hint')!.textContent!.replace(/\s+/g, ' ');
+    // The color space is named (pigment coordinates and plot are both OKLab); no jargon beyond that.
+    expect(hint()).toContain('OKLab hue and chroma map');
+    expect(hint()).toContain('Mixbox mixing');
+    expect(hint()).not.toMatch(/anchored/i);
+
+    el.querySelectorAll<HTMLButtonElement>('mat-button-toggle button')[1].click();
+    await fixture.whenStable();
+    expect(hint()).toContain('OKLab color cylinder');
+  });
 });
