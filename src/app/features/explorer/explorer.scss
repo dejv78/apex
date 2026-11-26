@@ -120,3 +120,38 @@ dd {
 .credits a {
   color: inherit;
 }
+
+.srgb {
+  fill: #ffffff;
+  fill-opacity: 0.05;
+  stroke: #ffffff;
+  stroke-opacity: 0.35;
+}
+.mixtures {
+  fill: #ffd54f;
+  fill-opacity: 0.1;
+  stroke: #ffd54f;
+  stroke-opacity: 0.8;
+}
+.curve-real {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+}
+.curve-linear {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.6;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.strip {
+  display: flex;
+  height: 1.5rem;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #fff;
+}
+.strip span {
+  flex: 1;
+}

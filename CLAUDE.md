@@ -20,7 +20,7 @@ CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy ru
 ## Architecture
 
 - `src/core/`: framework-free domain logic (`color`, `pigments`, `gamut`, `mixing`). No Angular imports. The color library is imported only in `core/color`. Mixing goes through a `MixingModel` interface (Mixbox first, Kubelka-Munk later).
-- `src/app/features/`: Angular UI. Angular Material, signals, zoneless, plain services (no NgRx). SVG rendering first; WebGL only after measured need.
+- `src/app/features/`: Angular UI. Angular Material, signals, zoneless, plain services (no NgRx). SVG rendering; no WebGL (ADR 0007, measured in `docs/domain/performance.md`).
 - Fixed neutral mid-gray theme in `src/styles.scss`; do not add dark mode or a theme switcher.
 
 ## Gotchas

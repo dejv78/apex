@@ -9,6 +9,7 @@
   display color is the only input. It knows nothing about the actual pigment chemistry.
 - Input colors are clamped to sRGB first, so out-of-gamut pigments (saturated cyans and greens) are
   mixed from their clipped display color.
+- Speed: ~1.5M mixes/s (`docs/domain/performance.md`); latents are cached per pigment.
 - Cost: ~156 kB of the bundle (embedded lookup table); initial bundle budget is therefore 900 kB.
 - Domain-fact test: blue + yellow gives a green hue, and more chroma than a linear OKLab mix.
 
