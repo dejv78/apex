@@ -1,6 +1,6 @@
 # 0007: No WebGL for now
 
-Status: Accepted (2026-11-26)
+Status: Accepted (2026-11-26). Superseded in part by [0010](0010-3d-color-cylinder-with-threejs.md): the 3D view uses WebGL for rendering; mixing and gamut computation still run on the CPU as decided here.
 
 ## Context
 

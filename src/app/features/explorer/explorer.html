@@ -1,173 +1,48 @@
 <mat-toolbar class="bar">
   <span>Paxt</span>
   <span class="spacer"></span>
-  <span class="hint">OKLab a/b plane · {{ model().label }} mixing</span>
+  <span class="hint">
+    {{ state.mode() === '3d' ? 'OKLab color cylinder' : 'OKLab a/b plane' }} ·
+    {{ state.model().label }} mixing
+  </span>
+  <mat-button-toggle-group
+    class="mode"
+    aria-label="View"
+    [value]="state.mode()"
+    (change)="state.mode.set($event.value)"
+  >
+    <mat-button-toggle value="2d">2D</mat-button-toggle>
+    <mat-button-toggle value="3d">3D</mat-button-toggle>
+  </mat-button-toggle-group>
 </mat-toolbar>
 
 <div class="layout">
   <section class="plot">
-    <svg
-      [attr.viewBox]="viewBox"
-      role="img"
-      aria-label="Pigments on the OKLab a/b plane, with hue angles and a and b axes"
-    >
-      <defs>
-        <clipPath id="plot-circle">
-          <circle [attr.cx]="size / 2" [attr.cy]="size / 2" [attr.r]="size / 2" />
-        </clipPath>
-        <linearGradient
-          id="axis-a"
-          gradientUnits="userSpaceOnUse"
-          x1="0"
-          y1="0"
-          [attr.x2]="size"
-          y2="0"
-        >
-          <stop offset="0" [attr.stop-color]="axisColors.aMinus" />
-          <stop offset="0.5" stop-color="#9a9a9a" />
-          <stop offset="1" [attr.stop-color]="axisColors.aPlus" />
-        </linearGradient>
-        <linearGradient
-          id="axis-b"
-          gradientUnits="userSpaceOnUse"
-          x1="0"
-          [attr.y1]="size"
-          x2="0"
-          y2="0"
-        >
-          <stop offset="0" [attr.stop-color]="axisColors.bMinus" />
-          <stop offset="0.5" stop-color="#9a9a9a" />
-          <stop offset="1" [attr.stop-color]="axisColors.bPlus" />
-        </linearGradient>
-      </defs>
-
-      <g clip-path="url(#plot-circle)">
-        @for (t of aTicks; track t.value) {
-          <line class="grid faint" [attr.x1]="t.x" y1="0" [attr.x2]="t.x" [attr.y2]="size" />
-        }
-        @for (t of bTicks; track t.value) {
-          <line class="grid faint" x1="0" [attr.y1]="t.y" [attr.x2]="size" [attr.y2]="t.y" />
-        }
-      </g>
-      @for (ring of rings; track ring.c) {
-        <circle class="grid" [attr.cx]="size / 2" [attr.cy]="size / 2" [attr.r]="ring.r" />
-        <text class="grid-label" [attr.x]="size / 2 + 4" [attr.y]="size / 2 - ring.r + 12">
-          C {{ ring.c }}
-        </text>
+    @if (state.mode() === '2d') {
+      <app-plot-2d />
+    } @else {
+      @defer (on immediate) {
+        <app-plot-3d />
+      } @loading {
+        <p class="hint loading">Loading the 3D view…</p>
       }
-      @for (mark of hueMarks; track mark.deg) {
-        <line
-          class="grid"
-          [attr.x1]="size / 2"
-          [attr.y1]="size / 2"
-          [attr.x2]="mark.x"
-          [attr.y2]="mark.y"
-        />
-        <text class="hue-label" [attr.x]="mark.labelX" [attr.y]="mark.labelY">{{ mark.deg }}°</text>
-      }
-      <line
-        class="axis"
-        stroke="url(#axis-a)"
-        x1="0"
-        [attr.y1]="size / 2"
-        [attr.x2]="size"
-        [attr.y2]="size / 2"
-      />
-      <line
-        class="axis"
-        stroke="url(#axis-b)"
-        [attr.x1]="size / 2"
-        y1="0"
-        [attr.x2]="size / 2"
-        [attr.y2]="size"
-      />
-
-      <text class="axis-name" [attr.x]="size / 2 + 10" y="36">↑ yellow b+</text>
-      <text class="axis-name" [attr.x]="size / 2 + 10" [attr.y]="size - 24">↓ blue b−</text>
-      <text class="axis-name right" [attr.x]="size - 10" [attr.y]="size / 2 - 10">
-        a+ magenta →
-      </text>
-      <text class="axis-name" x="10" [attr.y]="size / 2 - 10">← green a−</text>
-
-      @if (showSrgb()) {
-        <polygon class="srgb" [attr.points]="srgbPoints()" />
-      }
-      @if (showMixtures() && mixturePoints()) {
-        <polygon class="mixtures" [attr.points]="mixturePoints()" />
-      }
-      @for (m of markers(); track m.pigment.id) {
-        <circle
-          class="pigment"
-          [class.fugitive]="m.pigment.fugitive"
-          [attr.cx]="m.x"
-          [attr.cy]="m.y"
-          r="7"
-          [attr.fill]="m.pigment.hex"
-        />
-      }
-      @if (transition(); as t) {
-        @if (showLinear()) {
-          <polyline class="curve-linear" [attr.points]="t.linear" />
-        }
-        @for (end of [t.from, t.to]; track end.pigment.id) {
-          @if (end.truth; as truth) {
-            <circle class="truth" [attr.cx]="truth.x" [attr.cy]="truth.y" r="11">
-              <title>{{ end.pigment.name }}: true color, outside what the model reproduces</title>
-            </circle>
-          }
-        }
-        @for (dot of t.dots; track $index) {
-          <circle class="dot" [attr.cx]="dot.x" [attr.cy]="dot.y" r="4.5" [attr.fill]="dot.hex">
-            <title>{{ dot.tip }}</title>
-          </circle>
-        }
-        <circle class="anchor-ring" [attr.cx]="t.from.dot.x" [attr.cy]="t.from.dot.y" r="14" />
-        @for (end of [t.from, t.to]; track end.pigment.id) {
-          <circle
-            class="end"
-            [attr.cx]="end.dot.x"
-            [attr.cy]="end.dot.y"
-            r="8"
-            [attr.fill]="end.dot.hex"
-            (click)="pick(end.pigment, $event)"
-          >
-            <title>{{ label(end.pigment) }}{{ end === t.from ? ' (anchor)' : '' }}</title>
-          </circle>
-        }
-      }
-      @if (solo(); as s) {
-        <circle class="anchor-ring" [attr.cx]="s.x" [attr.cy]="s.y" r="14" />
-        <circle
-          class="end"
-          [attr.cx]="s.x"
-          [attr.cy]="s.y"
-          r="8"
-          [attr.fill]="s.hex"
-          (click)="pick(s.pigment, $event)"
-        >
-          <title>{{ label(s.pigment) }} (anchor)</title>
-        </circle>
-      }
-      <!-- Click targets, drawn last so that path dots and end markers never block a click. -->
-      @for (m of markers(); track m.pigment.id) {
-        <circle class="hit" [attr.cx]="m.x" [attr.cy]="m.y" r="9" (click)="pick(m.pigment, $event)">
-          <title>{{ label(m.pigment) }}</title>
-        </circle>
-      }
-    </svg>
+    }
   </section>
 
   <aside class="panel">
     <h2>Mix pigments</h2>
-    @for (slot of slots(); track slot.index) {
+    @for (slot of state.slots(); track slot.index) {
       <mat-form-field>
         <mat-label>{{ slot.label }}</mat-label>
-        <mat-select [value]="slot.id" (selectionChange)="pickInSlot(slot.index, $event.value)">
+        <mat-select
+          [value]="slot.id"
+          (selectionChange)="state.pickInSlot(slot.index, $event.value)"
+        >
           @if (slot.id !== null) {
             <mat-option [value]="null">None</mat-option>
           }
-          @for (p of allPigments; track p.id) {
-            <mat-option [value]="p.id" [disabled]="isTaken(p.id, slot.index)">
+          @for (p of state.allPigments; track p.id) {
+            <mat-option [value]="p.id" [disabled]="state.isTaken(p.id, slot.index)">
               {{ label(p) }}
             </mat-option>
           }
@@ -178,13 +53,25 @@
       Click a pigment on the plot to make it the anchor, then click another to mix it with the
       anchor. Click a selected pigment to remove it. Ctrl+click makes a pigment the anchor.
     </p>
+    @if (state.mode() === '3d') {
+      <p class="hint">
+        Drag to rotate, scroll to zoom, right-drag to pan. The view buttons jump to the top, front
+        or side.
+      </p>
+    }
 
     <h2>View</h2>
-    <mat-slide-toggle [checked]="showMixtures()" (change)="showMixtures.set($event.checked)">
+    <mat-slide-toggle
+      [checked]="state.showMixtureGamut()"
+      (change)="state.showMixtureGamut.set($event.checked)"
+    >
       Mixture gamut
     </mat-slide-toggle>
-    <mat-slide-toggle [checked]="showHidden()" (change)="showHidden.set($event.checked)">
-      Show all pigments ({{ allPigments.length }})
+    <mat-slide-toggle
+      [checked]="state.showHidden()"
+      (change)="state.showHidden.set($event.checked)"
+    >
+      Show all pigments ({{ state.allPigments.length }})
     </mat-slide-toggle>
 
     <mat-accordion>
@@ -192,7 +79,10 @@
         <mat-expansion-panel-header>
           <mat-panel-title>Advanced</mat-panel-title>
         </mat-expansion-panel-header>
-        <mat-slide-toggle [checked]="anchored()" (change)="anchored.set($event.checked)">
+        <mat-slide-toggle
+          [checked]="state.anchored()"
+          (change)="state.anchored.set($event.checked)"
+        >
           Correct mixes to true pigment colors
         </mat-slide-toggle>
         <p class="hint">
@@ -200,10 +90,24 @@
           pigments' offsets so pure pigments sit at their true OKLab position. Without it, a ring
           marks a pigment's true color where the model cannot reproduce it.
         </p>
-        <mat-slide-toggle [checked]="showLinear()" (change)="showLinear.set($event.checked)">
+        @if (state.mode() === '3d') {
+          <mat-slide-toggle
+            [checked]="state.showMixtureCloud()"
+            (change)="state.showMixtureCloud.set($event.checked)"
+          >
+            Mixture point cloud
+          </mat-slide-toggle>
+        }
+        <mat-slide-toggle
+          [checked]="state.showLinear()"
+          (change)="state.showLinear.set($event.checked)"
+        >
           Straight OKLab line
         </mat-slide-toggle>
-        <mat-slide-toggle [checked]="showSrgb()" (change)="showSrgb.set($event.checked)">
+        <mat-slide-toggle
+          [checked]="state.showSrgb()"
+          (change)="state.showSrgb.set($event.checked)"
+        >
           sRGB gamut
         </mat-slide-toggle>
       </mat-expansion-panel>

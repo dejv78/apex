@@ -15,6 +15,12 @@ Without the per-pigment latent cache, every mix would also run the pigment-to-la
 
 `sampling.spec.ts` keeps a loose regression guard (all pairs under 1 s), not a benchmark.
 
+## 3D view (2026-11-26, Node/V8)
+
+- Convex hull of the 12,036 mixture samples (`ConvexGeometry`): 12 ms, 516 triangles.
+- Crossing of that hull with the 3,072-triangle sRGB mesh (`intersectTriangleSets`): 13 ms, 273
+  segments. Both run only when the hull or the sRGB solid changes.
+
 ## Implications
 
 - The slowness of other web mixers is not inherent to Mixbox-style mixing. ADR 0007: no WebGL.

@@ -137,4 +137,31 @@ describe('Explorer controls', () => {
     expect(el.querySelector('circle.end title')?.textContent).toContain('Phthalo blue');
     expect(el.querySelector('circle.end title')?.textContent).toContain('(anchor)');
   });
+
+  it('switches between the 2D and 3D views, loading the 3D view on demand', async () => {
+    const { fixture, el } = await setup();
+    expect(el.querySelector('app-plot-2d')).not.toBeNull();
+    expect(el.querySelector('app-plot-3d')).toBeNull();
+    expect(el.textContent).not.toContain('Mixture point cloud');
+
+    const toggles = Array.from(el.querySelectorAll<HTMLButtonElement>('mat-button-toggle button'));
+    expect(toggles.map((t) => t.textContent?.trim())).toEqual(['2D', '3D']);
+    toggles[1].click();
+    await fixture.whenStable();
+    await fixture.whenStable();
+
+    expect(el.querySelector('app-plot-2d')).toBeNull();
+    expect(el.querySelector('app-plot-3d')).not.toBeNull();
+    // jsdom has no WebGL, so the 3D view must explain itself instead of failing silently.
+    expect(el.querySelector('app-plot-3d')!.textContent).toContain('needs WebGL');
+
+    // 3D-only control appears in the (collapsed) Advanced section.
+    expect(el.querySelector('mat-expansion-panel')!.textContent).toContain('Mixture point cloud');
+
+    // The shared selection survives the switch.
+    toggles[0].click();
+    await fixture.whenStable();
+    expect(el.querySelector('app-plot-2d')).not.toBeNull();
+    expect(el.querySelectorAll('circle.end').length).toBe(2);
+  });
 });

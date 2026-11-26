@@ -24,7 +24,10 @@ The explorer draws a two-pigment transition as dots that are equally spaced alon
 on the a/b plane (6 SVG units, about 0.006 OKLab), so the number of dots follows the path length:
 5 mixes for PY129 to PY150 (close), 77 for PY3 to PB29 (far).
 
-- Spacing is measured on the a/b plane only; lightness changes are ignored.
+- Spacing is measured on the a/b plane in the 2D view (what that plot draws) and in full OKLab
+  distance, lightness included, in the 3D view. Black to white has about 110 dots in 3D and a handful
+  in 2D, because on the a/b plane they are almost the same point. The metric is a parameter of
+  `evenlySpacedMixCurve` (`abDistance` or `labDistance`).
 - The path is measured on a 256-step probe; each dot's ratio is then solved on that path and mixed
   exactly. Ends are always the pure pigments. The achieved spacing is length / a whole number of
   intervals, so it only approximates the requested spacing.

@@ -1,0 +1,103 @@
+:host {
+  display: block;
+}
+svg {
+  width: 100%;
+  max-height: calc(100vh - 6rem);
+  background: #777777;
+}
+.grid {
+  stroke: #ffffff;
+  stroke-opacity: 0.25;
+  fill: none;
+}
+.grid.faint {
+  stroke-opacity: 0.1;
+}
+.axis {
+  stroke-width: 2;
+  stroke-opacity: 0.9;
+}
+.hue-label,
+.axis-name {
+  fill: #ffffff;
+  fill-opacity: 0.8;
+  font-size: 12px;
+}
+.hue-label {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.axis-name {
+  font-size: 13px;
+}
+.axis-name.right {
+  text-anchor: end;
+}
+.grid-label {
+  fill: #ffffff;
+  fill-opacity: 0.5;
+  font-size: 11px;
+}
+.pigment {
+  stroke: #222222;
+  stroke-width: 1;
+}
+.pigment.fugitive {
+  stroke-dasharray: 2 2;
+}
+.srgb {
+  fill: #ffffff;
+  fill-opacity: 0.05;
+  stroke: #ffffff;
+  stroke-opacity: 0.35;
+}
+.mixtures {
+  fill: #ffd54f;
+  fill-opacity: 0.1;
+  stroke: #ffd54f;
+  stroke-opacity: 0.8;
+}
+.curve-linear {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.6;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.dot {
+  stroke: #222222;
+  stroke-opacity: 0.5;
+  stroke-width: 0.5;
+}
+.end {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.truth {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.8;
+  stroke-width: 2;
+}
+.anchor-ring {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.hit {
+  fill: rgba(0, 0, 0, 0);
+  stroke: none;
+  cursor: pointer;
+}
+.hit:hover {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.end {
+  cursor: pointer;
+}
+.anchor-ring,
+.truth {
+  pointer-events: none;
+}

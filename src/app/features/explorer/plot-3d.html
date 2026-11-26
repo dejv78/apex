@@ -1,0 +1,19 @@
+<div class="wrap">
+  <div #host class="host" aria-label="Pigments in the OKLab color cylinder (3D)"></div>
+  @if (unsupported()) {
+    <p class="message">
+      The 3D view needs WebGL, which is not available in this browser. The 2D view works without it.
+    </p>
+  } @else {
+    <div class="views" role="group" aria-label="Camera views">
+      @for (view of views; track view.id) {
+        <button type="button" [title]="view.hint" (click)="setView(view.id)">
+          {{ view.label }}
+        </button>
+      }
+    </div>
+  }
+  @if (hover(); as h) {
+    <div class="tooltip" [style.left.px]="h.x + 14" [style.top.px]="h.y + 14">{{ h.text }}</div>
+  }
+</div>

@@ -6,6 +6,7 @@ import { MixboxModel } from './mixbox-model';
 import {
   abDistance,
   evenlySpacedMixCurve,
+  labDistance,
   linearOklabCurve,
   mixCurve,
   samplePairMixtures,
@@ -104,5 +105,35 @@ describe('evenlySpacedMixCurve', () => {
   it('returns just both ends for identical pigments and rejects a bad spacing', () => {
     expect(evenlySpacedMixCurve(model, yellow, yellow, SPACING).length).toBe(2);
     expect(() => evenlySpacedMixCurve(model, yellow, blue, 0)).toThrow();
+  });
+
+  it('counts lightness when asked to: black and white are far apart in OKLab, almost on top of each other on the a/b plane', () => {
+    const black = pigmentById('ivory-black');
+    const white = pigmentById('titanium-white');
+    const flat = evenlySpacedMixCurve(model, black, white, SPACING);
+    const full = evenlySpacedMixCurve(model, black, white, SPACING, 256, labDistance);
+    expect(flat.length).toBeLessThan(15);
+    expect(full.length).toBeGreaterThan(60);
+    const probe = mixCurve(model, black, white, 2000);
+    let length = 0;
+    for (let i = 1; i < probe.length; i++)
+      length += labDistance(probe[i - 1].color, probe[i].color);
+    expect(full.length - 1).toBe(Math.round(length / SPACING));
+  });
+
+  it('spaces points evenly in full OKLab distance when that metric is used', () => {
+    const curve = evenlySpacedMixCurve(
+      model,
+      pigmentById('ivory-black'),
+      pigmentById('titanium-white'),
+      SPACING,
+      256,
+      labDistance,
+    );
+    const gaps = curve.slice(1).map((p, i) => labDistance(curve[i].color, p.color));
+    for (const g of gaps) {
+      expect(g).toBeGreaterThan(SPACING * 0.8);
+      expect(g).toBeLessThan(SPACING * 1.15);
+    }
   });
 });

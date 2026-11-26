@@ -21,51 +21,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
-.plot svg {
-  width: 100%;
-  max-height: calc(100vh - 6rem);
-  background: #777777;
-}
-.grid {
-  stroke: #ffffff;
-  stroke-opacity: 0.25;
-  fill: none;
-}
-.grid.faint {
-  stroke-opacity: 0.1;
-}
-.axis {
-  stroke-width: 2;
-  stroke-opacity: 0.9;
-}
-.hue-label,
-.axis-name {
-  fill: #ffffff;
-  fill-opacity: 0.8;
-  font-size: 12px;
-}
-.hue-label {
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.axis-name {
-  font-size: 13px;
-}
-.axis-name.right {
-  text-anchor: end;
-}
-.grid-label {
-  fill: #ffffff;
-  fill-opacity: 0.5;
-  font-size: 11px;
-}
-.pigment {
-  stroke: #222222;
-  stroke-width: 1;
-}
-.pigment.fugitive {
-  stroke-dasharray: 2 2;
-}
 .panel {
   background: #6a6a6a;
   color: #f2f2f2;
@@ -79,7 +34,6 @@
   margin: 0.5rem 0 0;
   font-size: 1rem;
 }
-
 .credits {
   padding: 0 1rem 1rem;
   font-size: 0.8rem;
@@ -89,50 +43,8 @@
 .credits a {
   color: inherit;
 }
-
-.srgb {
-  fill: #ffffff;
-  fill-opacity: 0.05;
-  stroke: #ffffff;
-  stroke-opacity: 0.35;
-}
-.mixtures {
-  fill: #ffd54f;
-  fill-opacity: 0.1;
-  stroke: #ffd54f;
-  stroke-opacity: 0.8;
-}
-.curve-linear {
-  fill: none;
-  stroke: #ffffff;
-  stroke-opacity: 0.6;
-  stroke-width: 1.5;
-  stroke-dasharray: 6 4;
-}
-
-.dot {
-  stroke: #222222;
-  stroke-opacity: 0.5;
-  stroke-width: 0.5;
-}
-.end {
-  stroke: #ffffff;
-  stroke-width: 2;
-}
-.truth {
-  fill: none;
-  stroke: #ffffff;
-  stroke-opacity: 0.8;
-  stroke-width: 2;
-}
 .panel mat-form-field {
   width: 100%;
-}
-
-.anchor-ring {
-  fill: none;
-  stroke: #ffffff;
-  stroke-width: 2;
 }
 .advanced {
   --mat-expansion-container-background-color: transparent;
@@ -150,19 +62,15 @@
   display: block;
 }
 
-.hit {
-  fill: rgba(0, 0, 0, 0);
-  stroke: none;
-  cursor: pointer;
+.mode {
+  --mat-button-toggle-text-color: #f2f2f2;
+  --mat-button-toggle-background-color: transparent;
+  --mat-button-toggle-selected-state-text-color: #ffffff;
+  --mat-button-toggle-selected-state-background-color: rgba(255, 255, 255, 0.28);
+  --mat-button-toggle-divider-color: rgba(255, 255, 255, 0.4);
+  --mat-button-toggle-height: 36px;
+  margin-left: 1rem;
 }
-.hit:hover {
-  stroke: #ffffff;
-  stroke-width: 2;
-}
-.end {
-  cursor: pointer;
-}
-.anchor-ring,
-.truth {
-  pointer-events: none;
+.loading {
+  padding: 2rem;
 }
