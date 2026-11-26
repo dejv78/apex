@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { convexHull, polygonArea, type Point } from '../../../core/gamut/convex-hull';
+import { convexHull, type Point } from '../../../core/gamut/convex-hull';
 import { srgbSurfaceSamples } from '../../../core/gamut/srgb-gamut';
 import {
   evenlySpacedMixCurve,
@@ -32,6 +31,7 @@ import {
   rings,
   toSvg,
 } from './plot-geometry';
+import { clickPigment, makeAnchor, setSlot, slotsFor } from './selection';
 
 const MIXTURE_STEPS = 8;
 /**
@@ -53,13 +53,7 @@ const toPolygon = (hull: readonly Point[]): string =>
 @Component({
   selector: 'app-explorer',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [MatExpansionModule, MatSelectModule, MatSlideToggleModule, MatToolbarModule],
   templateUrl: './explorer.html',
   styleUrl: './explorer.scss',
 })
@@ -83,11 +77,9 @@ export class Explorer {
 
   protected readonly showHidden = signal(false);
   protected readonly showLinear = signal(false);
-  /** The two pigments of the transition; `null` means not chosen yet. */
-  protected readonly pigmentA = signal<string | null>('lemon-yellow');
-  protected readonly pigmentB = signal<string | null>('phthalo-blue-redish');
-  /** Which end a clicked pigment goes to when both are already chosen. */
-  private nextEnd: 'a' | 'b' = 'a';
+  /** Ids of the pigments to mix, anchor first (see `selection.ts` for the rules). */
+  protected readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-redish']);
+  protected readonly slots = computed(() => slotsFor(this.selection()));
 
   protected readonly visible = computed(() =>
     this.showHidden() ? PIGMENTS : PIGMENTS.filter((p) => !p.hideByDefault),
@@ -104,29 +96,26 @@ export class Explorer {
     convexHull(srgbSurfaceSamples().map((c) => ({ x: c.a, y: c.b }))),
   );
   protected readonly srgbPoints = computed(() => toPolygon(this.srgbHull()));
-  protected readonly srgbArea = computed(() => polygonArea(this.srgbHull()));
 
   /** Hull of all two-pigment mixtures of the visible pigments; computed only while shown. */
-  private readonly mixtureGamut = computed(() => {
-    if (!this.showMixtures()) return null;
-    const start = performance.now();
-    const samples = samplePairMixtures(this.model(), this.visible(), MIXTURE_STEPS);
-    const hull = convexHull(samples.map((c) => ({ x: c.a, y: c.b })));
-    return { hull, count: samples.length, ms: performance.now() - start };
-  });
   protected readonly mixturePoints = computed(() => {
-    const g = this.mixtureGamut();
-    return g ? toPolygon(g.hull) : '';
-  });
-  protected readonly mixtureStats = computed(() => {
-    const g = this.mixtureGamut();
-    return g ? { area: polygonArea(g.hull), count: g.count, ms: g.ms } : null;
+    if (!this.showMixtures()) return '';
+    const samples = samplePairMixtures(this.model(), this.visible(), MIXTURE_STEPS);
+    return toPolygon(convexHull(samples.map((c) => ({ x: c.a, y: c.b }))));
   });
 
+  /** The anchor and its mixing partner, once both are chosen. */
   private readonly pair = computed(() => {
-    const a = this.pigmentA();
-    const b = this.pigmentB();
+    const [a, b] = this.selection();
     return a && b ? ([pigmentById(a), pigmentById(b)] as const) : null;
+  });
+
+  /** The lone selected pigment (the anchor, nothing to mix with yet), shown at its true color. */
+  protected readonly solo = computed(() => {
+    const [id, other] = this.selection();
+    if (!id || other) return null;
+    const pigment = pigmentById(id);
+    return { pigment, ...toSvg(pigment.oklab.a, pigment.oklab.b), hex: pigment.hex };
   });
 
   /** Samples of mixing A into B, as dots on the a/b plane, plus both end markers. */
@@ -151,28 +140,31 @@ export class Explorer {
       .join(' ');
     return {
       dots: dots.slice(1, -1),
-      mixes: dots.length - 2,
       from: end(a, dots[0]),
       to: end(b, dots[dots.length - 1]),
       linear,
     };
   });
 
-  protected setA(id: string | null): void {
-    this.pigmentA.set(id);
+  /** A dropdown picked a pigment, or cleared its slot. */
+  protected pickInSlot(index: number, id: string | null): void {
+    this.selection.update((sel) => setSlot(sel, index, id));
   }
 
-  protected setB(id: string | null): void {
-    this.pigmentB.set(id);
+  /** Disables a dropdown option that is already selected in another dropdown. */
+  protected isTaken(id: string, index: number): boolean {
+    return this.selection().some((s, i) => s === id && i !== index);
   }
 
-  /** Clicking a marker fills the first empty end, otherwise the ends take turns. */
-  protected pick(pigment: Pigment): void {
-    let end = this.nextEnd;
-    if (this.pigmentA() === null) end = 'a';
-    else if (this.pigmentB() === null) end = 'b';
-    (end === 'a' ? this.pigmentA : this.pigmentB).set(pigment.id);
-    this.nextEnd = end === 'a' ? 'b' : 'a';
+  /**
+   * Clicking a pigment on the plot: anchor first, then the partner; clicking a selected one removes
+   * it. Ctrl+click (or ⌘+click on a Mac, where Ctrl+click opens the context menu) makes it the anchor.
+   */
+  protected pick(pigment: Pigment, event: MouseEvent): void {
+    const asAnchor = event.ctrlKey || event.metaKey;
+    this.selection.update((sel) =>
+      asAnchor ? makeAnchor(sel, pigment.id) : clickPigment(sel, pigment.id),
+    );
   }
 
   protected label(p: Pigment): string {

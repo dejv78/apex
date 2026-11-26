@@ -62,11 +62,6 @@
 .pigment {
   stroke: #222222;
   stroke-width: 1;
-  cursor: pointer;
-}
-.pigment:hover {
-  stroke: #ffffff;
-  stroke-width: 2;
 }
 .pigment.fugitive {
   stroke-dasharray: 2 2;
@@ -83,17 +78,6 @@
 .panel h2 {
   margin: 0.5rem 0 0;
   font-size: 1rem;
-}
-dl {
-  margin: 0;
-}
-dt {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-dd {
-  margin: 0 0 0.4rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .credits {
@@ -143,4 +127,42 @@ dd {
 }
 .panel mat-form-field {
   width: 100%;
+}
+
+.anchor-ring {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.advanced {
+  --mat-expansion-container-background-color: transparent;
+  --mat-expansion-container-text-color: #f2f2f2;
+  --mat-expansion-container-elevation-shadow: none;
+  --mat-expansion-header-text-color: #f2f2f2;
+  --mat-expansion-header-indicator-color: #f2f2f2;
+  --mat-expansion-header-hover-state-layer-color: rgba(255, 255, 255, 0.1);
+  --mat-expansion-header-collapsed-state-height: 44px;
+  --mat-expansion-header-expanded-state-height: 44px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0;
+}
+.advanced mat-slide-toggle {
+  display: block;
+}
+
+.hit {
+  fill: rgba(0, 0, 0, 0);
+  stroke: none;
+  cursor: pointer;
+}
+.hit:hover {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.end {
+  cursor: pointer;
+}
+.anchor-ring,
+.truth {
+  pointer-events: none;
 }

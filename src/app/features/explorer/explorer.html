@@ -103,10 +103,7 @@
           [attr.cy]="m.y"
           r="7"
           [attr.fill]="m.pigment.hex"
-          (click)="pick(m.pigment)"
-        >
-          <title>{{ label(m.pigment) }}</title>
-        </circle>
+        />
       }
       @if (transition(); as t) {
         @if (showLinear()) {
@@ -124,6 +121,7 @@
             <title>{{ dot.tip }}</title>
           </circle>
         }
+        <circle class="anchor-ring" [attr.cx]="t.from.dot.x" [attr.cy]="t.from.dot.y" r="14" />
         @for (end of [t.from, t.to]; track end.pigment.id) {
           <circle
             class="end"
@@ -131,83 +129,85 @@
             [attr.cy]="end.dot.y"
             r="8"
             [attr.fill]="end.dot.hex"
+            (click)="pick(end.pigment, $event)"
           >
-            <title>{{ label(end.pigment) }}</title>
+            <title>{{ label(end.pigment) }}{{ end === t.from ? ' (anchor)' : '' }}</title>
           </circle>
         }
+      }
+      @if (solo(); as s) {
+        <circle class="anchor-ring" [attr.cx]="s.x" [attr.cy]="s.y" r="14" />
+        <circle
+          class="end"
+          [attr.cx]="s.x"
+          [attr.cy]="s.y"
+          r="8"
+          [attr.fill]="s.hex"
+          (click)="pick(s.pigment, $event)"
+        >
+          <title>{{ label(s.pigment) }} (anchor)</title>
+        </circle>
+      }
+      <!-- Click targets, drawn last so that path dots and end markers never block a click. -->
+      @for (m of markers(); track m.pigment.id) {
+        <circle class="hit" [attr.cx]="m.x" [attr.cy]="m.y" r="9" (click)="pick(m.pigment, $event)">
+          <title>{{ label(m.pigment) }}</title>
+        </circle>
       }
     </svg>
   </section>
 
   <aside class="panel">
-    <h2>Mix two pigments</h2>
-    <mat-form-field>
-      <mat-label>From</mat-label>
-      <mat-select [value]="pigmentA()" (selectionChange)="setA($event.value)">
-        <mat-option [value]="null">None</mat-option>
-        @for (p of allPigments; track p.id) {
-          <mat-option [value]="p.id">{{ label(p) }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>To</mat-label>
-      <mat-select [value]="pigmentB()" (selectionChange)="setB($event.value)">
-        <mat-option [value]="null">None</mat-option>
-        @for (p of allPigments; track p.id) {
-          <mat-option [value]="p.id">{{ label(p) }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    @if (transition(); as t) {
-      <p class="hint">
-        {{ t.mixes }} {{ model().label }} mixtures from 100% "From" to 100% "To", equally spaced
-        along the path, so distant pigments get more dots than close ones. Hover a dot for its
-        ratio. Without anchoring, a ring marks a pigment's true color where the model cannot
-        reproduce it.
-      </p>
-    } @else {
-      <p class="hint">Choose two pigments, or click two pigments on the plot.</p>
+    <h2>Mix pigments</h2>
+    @for (slot of slots(); track slot.index) {
+      <mat-form-field>
+        <mat-label>{{ slot.label }}</mat-label>
+        <mat-select [value]="slot.id" (selectionChange)="pickInSlot(slot.index, $event.value)">
+          @if (slot.id !== null) {
+            <mat-option [value]="null">None</mat-option>
+          }
+          @for (p of allPigments; track p.id) {
+            <mat-option [value]="p.id" [disabled]="isTaken(p.id, slot.index)">
+              {{ label(p) }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     }
-
-    <mat-slide-toggle [checked]="anchored()" (change)="anchored.set($event.checked)">
-      Anchor mixes to true pigment colors
-    </mat-slide-toggle>
     <p class="hint">
-      Mixbox works inside sRGB, so saturated pigments are clamped. Anchoring corrects each mix by
-      its pigments' offsets so pure pigments sit at their true OKLab position.
+      Click a pigment on the plot to make it the anchor, then click another to mix it with the
+      anchor. Click a selected pigment to remove it. Ctrl+click makes a pigment the anchor.
     </p>
 
     <h2>View</h2>
     <mat-slide-toggle [checked]="showMixtures()" (change)="showMixtures.set($event.checked)">
-      Mixture gamut (all pairs)
-    </mat-slide-toggle>
-    <mat-slide-toggle [checked]="showLinear()" (change)="showLinear.set($event.checked)">
-      Straight OKLab line
-    </mat-slide-toggle>
-    <mat-slide-toggle [checked]="showSrgb()" (change)="showSrgb.set($event.checked)">
-      sRGB gamut
+      Mixture gamut
     </mat-slide-toggle>
     <mat-slide-toggle [checked]="showHidden()" (change)="showHidden.set($event.checked)">
       Show all pigments ({{ allPigments.length }})
     </mat-slide-toggle>
-    @if (mixtureStats() || showSrgb()) {
-      <dl class="areas">
-        <dt>Gamut area on the a/b plane</dt>
-        <dd>
-          @if (mixtureStats(); as m) {
-            Mixtures {{ m.area.toFixed(4) }}
-          }
-          @if (showSrgb()) {
-            @if (mixtureStats()) {
-              ·
-            }
-            sRGB {{ srgbArea().toFixed(4) }}
-          }
-        </dd>
-      </dl>
-    }
-    <p class="hint">Click a pigment to use it as an end of the transition.</p>
+
+    <mat-accordion>
+      <mat-expansion-panel class="advanced">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Advanced</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-slide-toggle [checked]="anchored()" (change)="anchored.set($event.checked)">
+          Correct mixes to true pigment colors
+        </mat-slide-toggle>
+        <p class="hint">
+          Mixbox works inside sRGB, so saturated pigments are clamped. This corrects each mix by its
+          pigments' offsets so pure pigments sit at their true OKLab position. Without it, a ring
+          marks a pigment's true color where the model cannot reproduce it.
+        </p>
+        <mat-slide-toggle [checked]="showLinear()" (change)="showLinear.set($event.checked)">
+          Straight OKLab line
+        </mat-slide-toggle>
+        <mat-slide-toggle [checked]="showSrgb()" (change)="showSrgb.set($event.checked)">
+          sRGB gamut
+        </mat-slide-toggle>
+      </mat-expansion-panel>
+    </mat-accordion>
   </aside>
 </div>
 
