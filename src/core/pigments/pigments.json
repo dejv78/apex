@@ -885,8 +885,8 @@
       "hideByDefault": true
     },
     {
-      "id": "phthalo-blue-redish",
-      "name": "Phthalo blue redish",
+      "id": "phthalo-blue-reddish",
+      "name": "Phthalo blue reddish",
       "code": "PB15:6",
       "oklab": {
         "l": 0.4165,
