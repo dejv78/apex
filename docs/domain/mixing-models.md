@@ -13,6 +13,11 @@
 - Cost: ~156 kB of the bundle (embedded lookup table); initial bundle budget is therefore 900 kB.
 - Domain-fact test: blue + yellow gives a green hue, and more chroma than a linear OKLab mix.
 
+## Anchoring (`AnchoredModel`, default in the explorer)
+
+Wraps a model so pure pigments come out at their true OKLab colors (ADR 0008). Needed for Mixbox
+because it clamps to sRGB; not needed for a spectral model.
+
 ## Kubelka-Munk (planned, M3)
 
 Needs per-pigment spectral data (reflectance or K/S coefficients) that the project does not have

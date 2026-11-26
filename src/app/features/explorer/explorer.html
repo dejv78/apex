@@ -1,7 +1,7 @@
 <mat-toolbar class="bar">
   <span>Paxt</span>
   <span class="spacer"></span>
-  <span class="hint">OKLab a/b plane · {{ model.label }} mixing</span>
+  <span class="hint">OKLab a/b plane · {{ model().label }} mixing</span>
 </mat-toolbar>
 
 <div class="layout">
@@ -101,13 +101,21 @@
     </mat-form-field>
     @if (transition()) {
       <p class="hint">
-        Dots show {{ model.label }} mixtures from 100% "From" to 100% "To" in equal ratio steps.
-        Hover a dot for its ratio. A ring marks a pigment's true color where the model cannot
-        reproduce it.
+        Dots show {{ model().label }} mixtures from 100% "From" to 100% "To" in equal ratio steps.
+        Hover a dot for its ratio. Without anchoring, a ring marks a pigment's true color where the
+        model cannot reproduce it.
       </p>
     } @else {
       <p class="hint">Choose two pigments, or click two pigments on the plot.</p>
     }
+
+    <mat-slide-toggle [checked]="anchored()" (change)="anchored.set($event.checked)">
+      Anchor mixes to true pigment colors
+    </mat-slide-toggle>
+    <p class="hint">
+      Mixbox works inside sRGB, so saturated pigments are clamped. Anchoring corrects each mix by
+      its pigments' offsets so pure pigments sit at their true OKLab position.
+    </p>
 
     <h2>View</h2>
     <mat-slide-toggle [checked]="showHull()" (change)="showHull.set($event.checked)">

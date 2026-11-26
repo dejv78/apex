@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { convexHull, polygonArea, type Point } from '../../../core/gamut/convex-hull';
 import { srgbSurfaceSamples } from '../../../core/gamut/srgb-gamut';
 import { linearOklabCurve, mixCurve, samplePairMixtures } from '../../../core/mixing/sampling';
+import { AnchoredModel } from '../../../core/mixing/anchored-model';
 import { MixboxModel } from '../../../core/mixing/mixbox-model';
 import type { MixingModel } from '../../../core/mixing/mixing-model';
 import { oklabToHex } from '../../../core/color/color';
@@ -54,7 +55,13 @@ export class Explorer {
   protected readonly size = SIZE;
   protected readonly allPigments = PIGMENTS;
   protected readonly source = PIGMENT_DATASET.source;
-  protected readonly model: MixingModel = new MixboxModel();
+  private readonly rawModel: MixingModel = new MixboxModel();
+  private readonly anchoredModel: MixingModel = new AnchoredModel(this.rawModel);
+  /** Pin mixes to the pigments' true OKLab colors (the raw model clamps them to sRGB). */
+  protected readonly anchored = signal(true);
+  protected readonly model = computed<MixingModel>(() =>
+    this.anchored() ? this.anchoredModel : this.rawModel,
+  );
 
   protected readonly showHidden = signal(false);
   protected readonly showHull = signal(true);
@@ -92,7 +99,7 @@ export class Explorer {
   private readonly mixtureGamut = computed(() => {
     if (!this.showMixtures()) return null;
     const start = performance.now();
-    const samples = samplePairMixtures(this.model, this.visible(), MIXTURE_STEPS);
+    const samples = samplePairMixtures(this.model(), this.visible(), MIXTURE_STEPS);
     const hull = convexHull(samples.map((c) => ({ x: c.a, y: c.b })));
     return { hull, count: samples.length, ms: performance.now() - start };
   });
@@ -116,7 +123,7 @@ export class Explorer {
     const pair = this.pair();
     if (!pair) return null;
     const [a, b] = pair;
-    const samples = mixCurve(this.model, a, b, TRANSITION_STEPS);
+    const samples = mixCurve(this.model(), a, b, TRANSITION_STEPS);
     const dots = samples.map((s) => ({
       ...toSvg(s.color.a, s.color.b),
       hex: oklabToHex(s.color),

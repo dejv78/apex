@@ -30,3 +30,10 @@ Hull areas: pigment masstones 0.1118, Mixbox two-pigment mixtures 0.1086, sRGB 0
   goal. Kubelka-Munk (M3) is not bound by it, only the display conversion is.
 - The sRGB outline is the a/b hull of dense samples of the cube surface (`core/gamut/srgb-gamut.ts`),
   because the sRGB gamut is not convex in OKLab; the drawn polygon is therefore an approximation.
+
+## With anchoring (ADR 0008)
+
+Anchored to the true pigment colors, the Mixbox mixture hull (visible pigments, all pairs, 8 steps)
+is **0.1283**, larger than the pigment hull **0.1118** (raw Mixbox: 0.1086). All 97 pigments:
+0.1292 vs 0.1122. The earlier "mixtures are smaller than the pigments" result was an artifact of
+clamping, not a property of mixing. Still bounded in practice by the heuristic's extrapolation.
