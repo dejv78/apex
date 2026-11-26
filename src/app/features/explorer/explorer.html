@@ -7,25 +7,88 @@
 <div class="layout">
   <section class="plot">
     <svg
-      [attr.viewBox]="'0 0 ' + size + ' ' + size"
+      [attr.viewBox]="viewBox"
       role="img"
-      aria-label="Pigments on the OKLab a/b plane"
+      aria-label="Pigments on the OKLab a/b plane, with hue angles and a and b axes"
     >
+      <defs>
+        <clipPath id="plot-circle">
+          <circle [attr.cx]="size / 2" [attr.cy]="size / 2" [attr.r]="size / 2" />
+        </clipPath>
+        <linearGradient
+          id="axis-a"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="0"
+          [attr.x2]="size"
+          y2="0"
+        >
+          <stop offset="0" [attr.stop-color]="axisColors.aMinus" />
+          <stop offset="0.5" stop-color="#9a9a9a" />
+          <stop offset="1" [attr.stop-color]="axisColors.aPlus" />
+        </linearGradient>
+        <linearGradient
+          id="axis-b"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          [attr.y1]="size"
+          x2="0"
+          y2="0"
+        >
+          <stop offset="0" [attr.stop-color]="axisColors.bMinus" />
+          <stop offset="0.5" stop-color="#9a9a9a" />
+          <stop offset="1" [attr.stop-color]="axisColors.bPlus" />
+        </linearGradient>
+      </defs>
+
+      <g clip-path="url(#plot-circle)">
+        @for (t of aTicks; track t.value) {
+          <line class="grid faint" [attr.x1]="t.x" y1="0" [attr.x2]="t.x" [attr.y2]="size" />
+        }
+        @for (t of bTicks; track t.value) {
+          <line class="grid faint" x1="0" [attr.y1]="t.y" [attr.x2]="size" [attr.y2]="t.y" />
+        }
+      </g>
       @for (ring of rings; track ring.c) {
         <circle class="grid" [attr.cx]="size / 2" [attr.cy]="size / 2" [attr.r]="ring.r" />
         <text class="grid-label" [attr.x]="size / 2 + 4" [attr.y]="size / 2 - ring.r + 12">
           C {{ ring.c }}
         </text>
       }
-      @for (spoke of spokes; track spoke.deg) {
+      @for (mark of hueMarks; track mark.deg) {
         <line
           class="grid"
           [attr.x1]="size / 2"
           [attr.y1]="size / 2"
-          [attr.x2]="spoke.x"
-          [attr.y2]="spoke.y"
+          [attr.x2]="mark.x"
+          [attr.y2]="mark.y"
         />
+        <text class="hue-label" [attr.x]="mark.labelX" [attr.y]="mark.labelY">{{ mark.deg }}°</text>
       }
+      <line
+        class="axis"
+        stroke="url(#axis-a)"
+        x1="0"
+        [attr.y1]="size / 2"
+        [attr.x2]="size"
+        [attr.y2]="size / 2"
+      />
+      <line
+        class="axis"
+        stroke="url(#axis-b)"
+        [attr.x1]="size / 2"
+        y1="0"
+        [attr.x2]="size / 2"
+        [attr.y2]="size"
+      />
+
+      <text class="axis-name" [attr.x]="size / 2 + 10" y="36">↑ yellow b+</text>
+      <text class="axis-name" [attr.x]="size / 2 + 10" [attr.y]="size - 24">blue b− ↓</text>
+      <text class="axis-name right" [attr.x]="size - 10" [attr.y]="size / 2 - 10">
+        a+ magenta →
+      </text>
+      <text class="axis-name" x="10" [attr.y]="size / 2 - 10">← green a−</text>
+
       @if (showSrgb()) {
         <polygon class="srgb" [attr.points]="srgbPoints()" />
       }

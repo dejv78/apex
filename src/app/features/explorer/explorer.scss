@@ -31,6 +31,29 @@
   stroke-opacity: 0.25;
   fill: none;
 }
+.grid.faint {
+  stroke-opacity: 0.1;
+}
+.axis {
+  stroke-width: 2;
+  stroke-opacity: 0.9;
+}
+.hue-label,
+.axis-name {
+  fill: #ffffff;
+  fill-opacity: 0.8;
+  font-size: 12px;
+}
+.hue-label {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.axis-name {
+  font-size: 13px;
+}
+.axis-name.right {
+  text-anchor: end;
+}
 .grid-label {
   fill: #ffffff;
   fill-opacity: 0.5;

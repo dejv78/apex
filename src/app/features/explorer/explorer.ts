@@ -21,11 +21,17 @@ import {
   pigmentById,
   type Pigment,
 } from '../../../core/pigments/pigments';
-
-/** Half-width of the plotted a/b plane (OKLab chroma of real pigments stays below ~0.25). */
-const EXTENT = 0.3;
-const SIZE = 600;
-const scale = SIZE / 2 / EXTENT;
+import {
+  SCALE as scale,
+  SIZE,
+  VIEW_BOX,
+  aTicks,
+  axisColors,
+  bTicks,
+  hueMarks,
+  rings,
+  toSvg,
+} from './plot-geometry';
 
 const MIXTURE_STEPS = 8;
 /**
@@ -44,9 +50,6 @@ const toPolygon = (hull: readonly Point[]): string =>
     .map((p) => `${p.x},${p.y}`)
     .join(' ');
 
-/** OKLab a/b plane to SVG coordinates (b points up). */
-const toSvg = (a: number, b: number) => ({ x: SIZE / 2 + a * scale, y: SIZE / 2 - b * scale });
-
 @Component({
   selector: 'app-explorer',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +65,12 @@ const toSvg = (a: number, b: number) => ({ x: SIZE / 2 + a * scale, y: SIZE / 2 
 })
 export class Explorer {
   protected readonly size = SIZE;
+  protected readonly viewBox = VIEW_BOX;
+  protected readonly rings = rings;
+  protected readonly hueMarks = hueMarks;
+  protected readonly aTicks = aTicks;
+  protected readonly bTicks = bTicks;
+  protected readonly axisColors = axisColors;
   protected readonly allPigments = PIGMENTS;
   protected readonly source = PIGMENT_DATASET.source;
   private readonly rawModel: MixingModel = new MixboxModel();
@@ -154,13 +163,6 @@ export class Explorer {
       to: end(b, dots[dots.length - 1]),
       linear,
     };
-  });
-
-  protected readonly rings = [0.1, 0.2, 0.3].map((c) => ({ c, r: c * scale }));
-  protected readonly spokes = Array.from({ length: 12 }, (_, i) => {
-    const rad = (i * 30 * Math.PI) / 180;
-    const end = toSvg(EXTENT * Math.cos(rad), EXTENT * Math.sin(rad));
-    return { deg: i * 30, ...end };
   });
 
   protected setA(id: string | null): void {

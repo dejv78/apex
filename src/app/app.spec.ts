@@ -16,5 +16,8 @@ describe('App routing', () => {
     expect(el.querySelectorAll('circle.pigment').length).toBeGreaterThan(20);
     expect(el.querySelectorAll('circle.dot').length).toBeGreaterThan(10);
     expect(el.querySelectorAll('circle.end').length).toBe(2);
+    expect(el.querySelectorAll('text.hue-label').length).toBe(12);
+    expect(el.textContent).toContain('a+ magenta');
+    expect(el.textContent).toContain('green a\u2212');
   });
 });
