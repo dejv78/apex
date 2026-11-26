@@ -82,7 +82,6 @@ export class Explorer {
   );
 
   protected readonly showHidden = signal(false);
-  protected readonly showHull = signal(true);
   protected readonly showLinear = signal(false);
   /** The two pigments of the transition; `null` means not chosen yet. */
   protected readonly pigmentA = signal<string | null>('lemon-yellow');
@@ -99,13 +98,7 @@ export class Explorer {
   );
 
   protected readonly showSrgb = signal(false);
-  protected readonly showMixtures = signal(false);
-
-  private readonly hull = computed(() =>
-    convexHull(this.visible().map((p) => ({ x: p.oklab.a, y: p.oklab.b }))),
-  );
-  protected readonly hullPoints = computed(() => toPolygon(this.hull()));
-  protected readonly hullArea = computed(() => polygonArea(this.hull()));
+  protected readonly showMixtures = signal(true);
 
   private readonly srgbHull = computed(() =>
     convexHull(srgbSurfaceSamples().map((c) => ({ x: c.a, y: c.b }))),

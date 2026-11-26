@@ -95,9 +95,6 @@
       @if (showMixtures() && mixturePoints()) {
         <polygon class="mixtures" [attr.points]="mixturePoints()" />
       }
-      @if (showHull()) {
-        <polygon class="hull" [attr.points]="hullPoints()" />
-      }
       @for (m of markers(); track m.pigment.id) {
         <circle
           class="pigment"
@@ -182,12 +179,6 @@
     </p>
 
     <h2>View</h2>
-    <mat-slide-toggle [checked]="showHull()" (change)="showHull.set($event.checked)">
-      Gamut hull
-    </mat-slide-toggle>
-    <mat-slide-toggle [checked]="showHidden()" (change)="showHidden.set($event.checked)">
-      Show all pigments ({{ allPigments.length }})
-    </mat-slide-toggle>
     <mat-slide-toggle [checked]="showMixtures()" (change)="showMixtures.set($event.checked)">
       Mixture gamut (all pairs)
     </mat-slide-toggle>
@@ -197,22 +188,25 @@
     <mat-slide-toggle [checked]="showSrgb()" (change)="showSrgb.set($event.checked)">
       sRGB gamut
     </mat-slide-toggle>
-    <dl class="areas">
-      <dt>a/b hull area</dt>
-      <dd>
-        Pigments {{ hullArea().toFixed(4) }}
-        @if (mixtureStats(); as m) {
-          · Mixtures {{ m.area.toFixed(4) }}
-        }
-        @if (showSrgb()) {
-          · sRGB {{ srgbArea().toFixed(4) }}
-        }
-      </dd>
-      @if (mixtureStats(); as m) {
-        <dt>Mixture sampling</dt>
-        <dd>{{ m.count }} colors in {{ m.ms.toFixed(0) }} ms</dd>
-      }
-    </dl>
+    <mat-slide-toggle [checked]="showHidden()" (change)="showHidden.set($event.checked)">
+      Show all pigments ({{ allPigments.length }})
+    </mat-slide-toggle>
+    @if (mixtureStats() || showSrgb()) {
+      <dl class="areas">
+        <dt>Gamut area on the a/b plane</dt>
+        <dd>
+          @if (mixtureStats(); as m) {
+            Mixtures {{ m.area.toFixed(4) }}
+          }
+          @if (showSrgb()) {
+            @if (mixtureStats()) {
+              ·
+            }
+            sRGB {{ srgbArea().toFixed(4) }}
+          }
+        </dd>
+      </dl>
+    }
     <p class="hint">Click a pigment to use it as an end of the transition.</p>
   </aside>
 </div>

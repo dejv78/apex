@@ -2,9 +2,10 @@
 
 ## Pigment hull vs. mixture gamut
 
-The explorer draws the convex hull of the pigments' masstone points in the OKLab a/b plane
-(`core/gamut/convex-hull.ts`). This is a **visual aid and a lower bound only**, not the real
-gamut of what can be mixed:
+The convex hull of the pigments' masstone points in the OKLab a/b plane (`core/gamut/convex-hull.ts`)
+is **a lower bound only**, not the real gamut of what can be mixed. The explorer drew it as an outline
+at first; it was removed from the UI on 2026-11-26 (redundant next to the mixture gamut, and of little
+use to a painter). `convexHull` stays in the core, now used for the mixture and sRGB outlines.
 
 - Linear mixing in OKLab can never leave the hull, but real (subtractive) mixing can. Observed with
   Mixbox: lemon yellow + phthalo blue (reddish) gives a green (OKLCH C 0.176, h 143) outside the hull

@@ -17,6 +17,8 @@ describe('App routing', () => {
     expect(el.querySelectorAll('circle.dot').length).toBeGreaterThan(10);
     expect(el.querySelectorAll('circle.end').length).toBe(2);
     expect(el.querySelectorAll('text.hue-label').length).toBe(12);
+    expect(el.querySelector('polygon.mixtures')).not.toBeNull();
+    expect(el.querySelector('polygon.hull')).toBeNull();
     expect(el.textContent).toContain('a+ magenta');
     expect(el.textContent).toContain('green a\u2212');
   });
