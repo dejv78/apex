@@ -1,20 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { routes } from './app.routes';
 
-describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [App] }).compileComponents();
+describe('App routing', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
-  it('should render the app name', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Paxt');
+  it('renders the explorer with the app name and pigment markers at the root', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/');
+    const el = harness.routeNativeElement as HTMLElement;
+    expect(el.textContent).toContain('Paxt');
+    expect(el.querySelectorAll('circle.pigment').length).toBeGreaterThan(20);
+    expect(el.querySelector('circle.mix')).not.toBeNull();
   });
 });

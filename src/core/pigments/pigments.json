@@ -1,0 +1,1138 @@
+{
+  "source": {
+    "name": "Artist Pigments",
+    "url": "https://artistpigments.org/",
+    "note": "Values entered manually by the project author from Artist Pigments (site content is licensed CC BY-NC 4.0, per the site footer, checked 2026-11-26); converted to OKLab/hex, with unique ids added. Non-commercial use only; attribution required.",
+    "license": "CC BY-NC 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/"
+  },
+  "pigments": [
+    {
+      "id": "zinc-white",
+      "name": "Zinc white",
+      "code": "PW4",
+      "oklab": {
+        "l": 0.9592,
+        "a": 0.0,
+        "b": 0.0104
+      },
+      "hex": "#f4f1ea",
+      "hideByDefault": true
+    },
+    {
+      "id": "titanium-white",
+      "name": "Titanium white",
+      "code": "PW6",
+      "oklab": {
+        "l": 0.986,
+        "a": 0.0003,
+        "b": 0.0025
+      },
+      "hex": "#fbfaf8",
+      "hideByDefault": true
+    },
+    {
+      "id": "buff-titanium",
+      "name": "Buff titanium",
+      "code": "PW6:1",
+      "oklab": {
+        "l": 0.8308,
+        "a": 0.0108,
+        "b": 0.0682
+      },
+      "hex": "#dfc495"
+    },
+    {
+      "id": "ivory-black",
+      "name": "Ivory black",
+      "code": "PBk9",
+      "oklab": {
+        "l": 0.3304,
+        "a": 0.0024,
+        "b": 0.0043
+      },
+      "hex": "#373533",
+      "hideByDefault": true
+    },
+    {
+      "id": "mars-black",
+      "name": "Mars black",
+      "code": "PBk11",
+      "oklab": {
+        "l": 0.3195,
+        "a": 0.0011,
+        "b": -0.0001
+      },
+      "hex": "#333233"
+    },
+    {
+      "id": "nickel-titanate-yellow",
+      "name": "Nickel titanate yellow",
+      "code": "PY53",
+      "oklab": {
+        "l": 0.934,
+        "a": -0.0344,
+        "b": 0.1284
+      },
+      "hex": "#f6ee80"
+    },
+    {
+      "id": "lemon-yellow",
+      "name": "Lemon yellow",
+      "code": "PY3",
+      "oklab": {
+        "l": 0.9382,
+        "a": -0.0553,
+        "b": 0.2066
+      },
+      "hex": "#fff000"
+    },
+    {
+      "id": "imidazolone-lemon",
+      "name": "Imidazolone lemon",
+      "code": "PY175",
+      "oklab": {
+        "l": 0.9305,
+        "a": -0.0489,
+        "b": 0.1828
+      },
+      "hex": "#fcee2b",
+      "hideByDefault": true
+    },
+    {
+      "id": "bismuth-vanadate-yellow",
+      "name": "Bismuth vanadate yellow",
+      "code": "PY184",
+      "oklab": {
+        "l": 0.918,
+        "a": -0.0456,
+        "b": 0.1837
+      },
+      "hex": "#fae91e",
+      "hideByDefault": true
+    },
+    {
+      "id": "azo-yellow",
+      "name": "Azo yellow",
+      "code": "PY128",
+      "oklab": {
+        "l": 0.9187,
+        "a": -0.0426,
+        "b": 0.194
+      },
+      "hex": "#ffe700",
+      "hideByDefault": true
+    },
+    {
+      "id": "imidazolone-yellow",
+      "name": "Imidazolone yellow",
+      "code": "PY154",
+      "oklab": {
+        "l": 0.92,
+        "a": -0.0333,
+        "b": 0.1876
+      },
+      "hex": "#ffe609",
+      "hideByDefault": true
+    },
+    {
+      "id": "isoindoline-yellow-light",
+      "name": "Isoindoline yellow light",
+      "code": "PY109",
+      "oklab": {
+        "l": 0.9046,
+        "a": -0.0327,
+        "b": 0.1908
+      },
+      "hex": "#ffe000",
+      "hideByDefault": true
+    },
+    {
+      "id": "aureolin-hue",
+      "name": "Aureolin hue",
+      "code": "PY151",
+      "oklab": {
+        "l": 0.9015,
+        "a": -0.0281,
+        "b": 0.2047
+      },
+      "hex": "#ffdd00"
+    },
+    {
+      "id": "aureolin",
+      "name": "Aureolin",
+      "code": "PY40",
+      "oklab": {
+        "l": 0.8943,
+        "a": -0.0248,
+        "b": 0.1864
+      },
+      "hex": "#ffdb00",
+      "fugitive": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "diarylide-yellow",
+      "name": "Diarylide yellow",
+      "code": "PY97",
+      "oklab": {
+        "l": 0.9014,
+        "a": -0.024,
+        "b": 0.2015
+      },
+      "hex": "#ffdc00",
+      "hideByDefault": true
+    },
+    {
+      "id": "irgazin-yellow",
+      "name": "Irgazin yellow",
+      "code": "PY129",
+      "oklab": {
+        "l": 0.7517,
+        "a": -0.0139,
+        "b": 0.1489
+      },
+      "hex": "#ccad19"
+    },
+    {
+      "id": "nickel-azo-yellow",
+      "name": "Nickel azo yellow",
+      "code": "PY150",
+      "oklab": {
+        "l": 0.8647,
+        "a": -0.0122,
+        "b": 0.1818
+      },
+      "hex": "#face00"
+    },
+    {
+      "id": "raw-sienna",
+      "name": "Raw sienna",
+      "code": "PBr7",
+      "oklab": {
+        "l": 0.7611,
+        "a": 0.0407,
+        "b": 0.1182
+      },
+      "hex": "#e3a350",
+      "note": "rs"
+    },
+    {
+      "id": "isoindoline-yellow",
+      "name": "Isoindoline yellow",
+      "code": "PY110",
+      "oklab": {
+        "l": 0.8179,
+        "a": 0.068,
+        "b": 0.175
+      },
+      "hex": "#ffab18"
+    },
+    {
+      "id": "yellow-ochre",
+      "name": "Yellow ochre",
+      "code": "PY42",
+      "oklab": {
+        "l": 0.7534,
+        "a": 0.0514,
+        "b": 0.1292
+      },
+      "hex": "#e89d3f"
+    },
+    {
+      "id": "naples-yellow",
+      "name": "Naples yellow",
+      "code": "PBr24",
+      "oklab": {
+        "l": 0.7966,
+        "a": 0.0538,
+        "b": 0.131
+      },
+      "hex": "#f8aa4c",
+      "hideByDefault": true
+    },
+    {
+      "id": "van-dyke-brown",
+      "name": "Van Dyke brown",
+      "code": "PBr8",
+      "oklab": {
+        "l": 0.5684,
+        "a": 0.0202,
+        "b": 0.0361
+      },
+      "hex": "#89725e"
+    },
+    {
+      "id": "cadmium-yellow-orange",
+      "name": "Cadmium yellow orange",
+      "code": "PO20",
+      "oklab": {
+        "l": 0.8006,
+        "a": 0.098,
+        "b": 0.1683
+      },
+      "hex": "#ffa038",
+      "hideByDefault": true
+    },
+    {
+      "id": "golden-ochre",
+      "name": "Golden ochre",
+      "code": "PY43",
+      "oklab": {
+        "l": 0.6533,
+        "a": 0.0867,
+        "b": 0.1061
+      },
+      "hex": "#d17439",
+      "hideByDefault": true
+    },
+    {
+      "id": "burnt-umber",
+      "name": "Burnt umber",
+      "code": "PBr7",
+      "oklab": {
+        "l": 0.5083,
+        "a": 0.0484,
+        "b": 0.0579
+      },
+      "hex": "#88583d",
+      "note": "bu"
+    },
+    {
+      "id": "burnt-sienna",
+      "name": "Burnt sienna",
+      "code": "PBr7",
+      "oklab": {
+        "l": 0.6378,
+        "a": 0.0962,
+        "b": 0.0939
+      },
+      "hex": "#cd6d41",
+      "note": "bs"
+    },
+    {
+      "id": "english-light-red",
+      "name": "English light red",
+      "code": "PR102",
+      "oklab": {
+        "l": 0.6456,
+        "a": 0.122,
+        "b": 0.0994
+      },
+      "hex": "#db663d"
+    },
+    {
+      "id": "red-orange",
+      "name": "Red orange",
+      "code": "PO73",
+      "oklab": {
+        "l": 0.7061,
+        "a": 0.1677,
+        "b": 0.1339
+      },
+      "hex": "#ff6120"
+    },
+    {
+      "id": "quinacridone-gold",
+      "name": "Quinacridone gold",
+      "code": "PO49",
+      "oklab": {
+        "l": 0.5814,
+        "a": 0.1255,
+        "b": 0.0975
+      },
+      "hex": "#c6512b",
+      "extinct": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "quinacridone-burnt-orange",
+      "name": "Quinacridone burnt orange",
+      "code": "PO48",
+      "oklab": {
+        "l": 0.5666,
+        "a": 0.1279,
+        "b": 0.0932
+      },
+      "hex": "#c14b2b",
+      "extinct": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "cadmium-red-orange",
+      "name": "Cadmium red orange",
+      "code": "PO20",
+      "oklab": {
+        "l": 0.6868,
+        "a": 0.1746,
+        "b": 0.1263
+      },
+      "hex": "#ff5826",
+      "hideByDefault": true
+    },
+    {
+      "id": "pyrrole-orange",
+      "name": "Pyrrole orange",
+      "code": "PO71",
+      "oklab": {
+        "l": 0.6481,
+        "a": 0.1688,
+        "b": 0.1212
+      },
+      "hex": "#f24e1e",
+      "hideByDefault": true
+    },
+    {
+      "id": "benzimidazolone-brown",
+      "name": "Benzimidazolone brown",
+      "code": "PBr25",
+      "oklab": {
+        "l": 0.4297,
+        "a": 0.0848,
+        "b": 0.055
+      },
+      "hex": "#7e3729"
+    },
+    {
+      "id": "benzimidazolone-orange",
+      "name": "Benzimidazolone orange",
+      "code": "PO36",
+      "oklab": {
+        "l": 0.6395,
+        "a": 0.1713,
+        "b": 0.1073
+      },
+      "hex": "#ed4c31",
+      "hideByDefault": true
+    },
+    {
+      "id": "geranium-red",
+      "name": "Geranium red",
+      "code": "PR242",
+      "oklab": {
+        "l": 0.6386,
+        "a": 0.1802,
+        "b": 0.1114
+      },
+      "hex": "#f1462b",
+      "hideByDefault": true
+    },
+    {
+      "id": "transparent-mars-red",
+      "name": "Transparent mars red",
+      "code": "PR101",
+      "oklab": {
+        "l": 0.5435,
+        "a": 0.1175,
+        "b": 0.072
+      },
+      "hex": "#b14b3a",
+      "hideByDefault": true
+    },
+    {
+      "id": "pyrrole-scarlet",
+      "name": "Pyrrole scarlet",
+      "code": "PR255",
+      "oklab": {
+        "l": 0.6205,
+        "a": 0.1984,
+        "b": 0.1109
+      },
+      "hex": "#f03124"
+    },
+    {
+      "id": "cadmium-red-light",
+      "name": "Cadmium red light",
+      "code": "PR108",
+      "oklab": {
+        "l": 0.6399,
+        "a": 0.1889,
+        "b": 0.1015
+      },
+      "hex": "#f34238",
+      "hideByDefault": true
+    },
+    {
+      "id": "indian-red",
+      "name": "Indian red",
+      "code": "PR101",
+      "oklab": {
+        "l": 0.4743,
+        "a": 0.0734,
+        "b": 0.0378
+      },
+      "hex": "#844942"
+    },
+    {
+      "id": "quinacridone-scarlet",
+      "name": "Quinacridone scarlet",
+      "code": "PR207",
+      "oklab": {
+        "l": 0.6497,
+        "a": 0.1752,
+        "b": 0.0887
+      },
+      "hex": "#ef5048",
+      "hideByDefault": true
+    },
+    {
+      "id": "pyrrole-red",
+      "name": "Pyrrole red",
+      "code": "PR254",
+      "oklab": {
+        "l": 0.6051,
+        "a": 0.2021,
+        "b": 0.0928
+      },
+      "hex": "#e92b36"
+    },
+    {
+      "id": "quinacridone-burnt-scarlet",
+      "name": "Quinacridone burnt scarlet",
+      "code": "PR206",
+      "oklab": {
+        "l": 0.4782,
+        "a": 0.1225,
+        "b": 0.0543
+      },
+      "hex": "#9a3736",
+      "extinct": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "perylene-red-deep",
+      "name": "Perylene red deep",
+      "code": "PR178",
+      "oklab": {
+        "l": 0.5587,
+        "a": 0.1746,
+        "b": 0.0768
+      },
+      "hex": "#cc3139",
+      "hideByDefault": true
+    },
+    {
+      "id": "quinacridone-red",
+      "name": "Quinacridone red",
+      "code": "PR209",
+      "oklab": {
+        "l": 0.648,
+        "a": 0.1856,
+        "b": 0.0774
+      },
+      "hex": "#f04b52"
+    },
+    {
+      "id": "perylene-maroon",
+      "name": "Perylene maroon",
+      "code": "PR179",
+      "oklab": {
+        "l": 0.5526,
+        "a": 0.1479,
+        "b": 0.0627
+      },
+      "hex": "#be4144"
+    },
+    {
+      "id": "benzimidazolone-carmine",
+      "name": "Benzimidazolone carmine",
+      "code": "PR176",
+      "oklab": {
+        "l": 0.5229,
+        "a": 0.1649,
+        "b": 0.0662
+      },
+      "hex": "#ba2c38",
+      "hideByDefault": true
+    },
+    {
+      "id": "genuine-vermillion",
+      "name": "Genuine vermillion",
+      "code": "PR106",
+      "oklab": {
+        "l": 0.5816,
+        "a": 0.1359,
+        "b": 0.0531
+      },
+      "hex": "#c25153",
+      "extinct": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "cadmium-red-deep",
+      "name": "Cadmium red deep",
+      "code": "PR108",
+      "oklab": {
+        "l": 0.5362,
+        "a": 0.1668,
+        "b": 0.0637
+      },
+      "hex": "#bf303e",
+      "hideByDefault": true
+    },
+    {
+      "id": "anthraquinone-red",
+      "name": "Anthraquinone red",
+      "code": "PR177",
+      "oklab": {
+        "l": 0.5203,
+        "a": 0.1782,
+        "b": 0.063
+      },
+      "hex": "#bd213a",
+      "hideByDefault": true
+    },
+    {
+      "id": "caput-mortuum",
+      "name": "Caput mortuum",
+      "code": "PR101",
+      "oklab": {
+        "l": 0.4096,
+        "a": 0.0568,
+        "b": 0.0227
+      },
+      "hex": "#683c3b"
+    },
+    {
+      "id": "pyrrole-rubin",
+      "name": "Pyrrole rubin",
+      "code": "PR264",
+      "oklab": {
+        "l": 0.5267,
+        "a": 0.1663,
+        "b": 0.055
+      },
+      "hex": "#ba2f42",
+      "hideByDefault": true
+    },
+    {
+      "id": "alizarin-crimson",
+      "name": "Alizarin crimson",
+      "code": "PR83",
+      "oklab": {
+        "l": 0.5565,
+        "a": 0.1875,
+        "b": 0.0616
+      },
+      "hex": "#cd2945",
+      "fugitive": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "quinacridone-rose",
+      "name": "Quinacridone rose",
+      "code": "PV19",
+      "oklab": {
+        "l": 0.5634,
+        "a": 0.1862,
+        "b": 0.0586
+      },
+      "hex": "#cf2e49",
+      "note": "r"
+    },
+    {
+      "id": "potters-pink",
+      "name": "Potters pink",
+      "code": "PR233",
+      "oklab": {
+        "l": 0.6793,
+        "a": 0.0972,
+        "b": 0.0267
+      },
+      "hex": "#cf7e84",
+      "hideByDefault": true
+    },
+    {
+      "id": "quinacridone-magenta",
+      "name": "Quinacridone magenta",
+      "code": "PR122",
+      "oklab": {
+        "l": 0.5437,
+        "a": 0.1923,
+        "b": 0.0199
+      },
+      "hex": "#c4275f"
+    },
+    {
+      "id": "quinacridone-violet",
+      "name": "Quinacridone violet",
+      "code": "PV19",
+      "oklab": {
+        "l": 0.4859,
+        "a": 0.1518,
+        "b": 0.014
+      },
+      "hex": "#a12e53",
+      "note": "v"
+    },
+    {
+      "id": "quinacridone-carmine",
+      "name": "Quinacridone carmine",
+      "code": "PR202",
+      "oklab": {
+        "l": 0.5186,
+        "a": 0.1859,
+        "b": 0.0139
+      },
+      "hex": "#b8225b",
+      "hideByDefault": true
+    },
+    {
+      "id": "rose-madder-genuine",
+      "name": "Rose madder genuine",
+      "code": "NR9",
+      "oklab": {
+        "l": 0.7726,
+        "a": 0.1171,
+        "b": 0.0061
+      },
+      "hex": "#f394ae",
+      "fugitive": true
+    },
+    {
+      "id": "perylene-violet",
+      "name": "Perylene violet",
+      "code": "PV29",
+      "oklab": {
+        "l": 0.5185,
+        "a": 0.0824,
+        "b": -0.001
+      },
+      "hex": "#8f5467"
+    },
+    {
+      "id": "yintico-red",
+      "name": "YInTiCo red",
+      "code": "PR298",
+      "oklab": {
+        "l": 0.6436,
+        "a": 0.1259,
+        "b": -0.0035
+      },
+      "hex": "#c96a8c",
+      "hideByDefault": true
+    },
+    {
+      "id": "ultramarine-pink",
+      "name": "Ultramarine pink",
+      "code": "PR259",
+      "oklab": {
+        "l": 0.6861,
+        "a": 0.1224,
+        "b": -0.0337
+      },
+      "hex": "#d178ad"
+    },
+    {
+      "id": "quinacridone-purple",
+      "name": "Quinacridone purple",
+      "code": "PV55",
+      "oklab": {
+        "l": 0.5268,
+        "a": 0.1504,
+        "b": -0.0535
+      },
+      "hex": "#a43d87"
+    },
+    {
+      "id": "cobalt-violet-light",
+      "name": "Cobalt violet light",
+      "code": "PV14",
+      "oklab": {
+        "l": 0.6447,
+        "a": 0.183,
+        "b": -0.1045
+      },
+      "hex": "#d151c8"
+    },
+    {
+      "id": "cobalt-violet",
+      "name": "Cobalt violet",
+      "code": "PV49",
+      "oklab": {
+        "l": 0.7332,
+        "a": 0.1343,
+        "b": -0.0561
+      },
+      "hex": "#e283c9",
+      "hideByDefault": true
+    },
+    {
+      "id": "manganese-violet",
+      "name": "Manganese violet",
+      "code": "PV16",
+      "oklab": {
+        "l": 0.4783,
+        "a": 0.1195,
+        "b": -0.0901
+      },
+      "hex": "#83398d"
+    },
+    {
+      "id": "dioxazine-violet-pv23",
+      "name": "Dioxazine violet",
+      "code": "PV23",
+      "oklab": {
+        "l": 0.424,
+        "a": 0.0404,
+        "b": -0.0343
+      },
+      "hex": "#5b4560"
+    },
+    {
+      "id": "dioxazine-violet-pv37",
+      "name": "Dioxazine violet",
+      "code": "PV37",
+      "oklab": {
+        "l": 0.3913,
+        "a": 0.0774,
+        "b": -0.089
+      },
+      "hex": "#592f73"
+    },
+    {
+      "id": "ultramarine-violet-reddish",
+      "name": "Ultramarine violet reddish",
+      "code": "PV15",
+      "oklab": {
+        "l": 0.7007,
+        "a": 0.0548,
+        "b": -0.072
+      },
+      "hex": "#ae90cb",
+      "note": "r"
+    },
+    {
+      "id": "synthetic-indigo",
+      "name": "Synthetic indigo",
+      "code": "PB66",
+      "oklab": {
+        "l": 0.3363,
+        "a": 0.0137,
+        "b": -0.022
+      },
+      "hex": "#393442",
+      "fugitive": true
+    },
+    {
+      "id": "indanthrene-blue",
+      "name": "Indanthrene blue",
+      "code": "PB60",
+      "oklab": {
+        "l": 0.3389,
+        "a": 0.0256,
+        "b": -0.0742
+      },
+      "hex": "#372f5d"
+    },
+    {
+      "id": "ultramarine-violet-blueish",
+      "name": "Ultramarine violet blueish",
+      "code": "PV15",
+      "oklab": {
+        "l": 0.4525,
+        "a": 0.0259,
+        "b": -0.1493
+      },
+      "hex": "#4946a7",
+      "note": "b"
+    },
+    {
+      "id": "yinmn-blue",
+      "name": "YInMn Blue",
+      "code": "PB86",
+      "oklab": {
+        "l": 0.4055,
+        "a": -0.0059,
+        "b": -0.1566
+      },
+      "hex": "#263d9c",
+      "hideByDefault": true
+    },
+    {
+      "id": "smalt",
+      "name": "Smalt",
+      "code": "PB32",
+      "oklab": {
+        "l": 0.4677,
+        "a": -0.0078,
+        "b": -0.1675
+      },
+      "hex": "#314fb6",
+      "extinct": true
+    },
+    {
+      "id": "ultramarine-deep",
+      "name": "Ultramarine deep",
+      "code": "PB29",
+      "oklab": {
+        "l": 0.5005,
+        "a": -0.0249,
+        "b": -0.1999
+      },
+      "hex": "#1e57d4"
+    },
+    {
+      "id": "cobalt-blue-deep",
+      "name": "Cobalt blue deep",
+      "code": "PB74",
+      "oklab": {
+        "l": 0.4835,
+        "a": -0.024,
+        "b": -0.1848
+      },
+      "hex": "#1e54c5",
+      "hideByDefault": true
+    },
+    {
+      "id": "phthalo-blue-redish",
+      "name": "Phthalo blue redish",
+      "code": "PB15:6",
+      "oklab": {
+        "l": 0.4165,
+        "a": -0.0288,
+        "b": -0.1451
+      },
+      "hex": "#0c479a"
+    },
+    {
+      "id": "genuine-indigo",
+      "name": "Genuine indigo",
+      "code": "NB1",
+      "oklab": {
+        "l": 0.4087,
+        "a": -0.0127,
+        "b": -0.0489
+      },
+      "hex": "#374b65",
+      "fugitive": true
+    },
+    {
+      "id": "cobalt-blue",
+      "name": "Cobalt blue",
+      "code": "PB28",
+      "oklab": {
+        "l": 0.5525,
+        "a": -0.0476,
+        "b": -0.1794
+      },
+      "hex": "#006fdb"
+    },
+    {
+      "id": "phthalo-blue-greenish",
+      "name": "Phthalo blue greenish",
+      "code": "PB15:3",
+      "oklab": {
+        "l": 0.4225,
+        "a": -0.0645,
+        "b": -0.1366
+      },
+      "hex": "#005192"
+    },
+    {
+      "id": "cerulean-blue",
+      "name": "Cerulean blue",
+      "code": "PB35",
+      "oklab": {
+        "l": 0.5999,
+        "a": -0.084,
+        "b": -0.1364
+      },
+      "hex": "#008ad4",
+      "hideByDefault": true
+    },
+    {
+      "id": "prussian-blue",
+      "name": "Prussian blue",
+      "code": "PB27",
+      "oklab": {
+        "l": 0.499,
+        "a": -0.0619,
+        "b": -0.0871
+      },
+      "hex": "#006b96"
+    },
+    {
+      "id": "cobalt-chromite-blue",
+      "name": "Cobalt chromite blue",
+      "code": "PB36",
+      "oklab": {
+        "l": 0.5574,
+        "a": -0.0918,
+        "b": -0.1116
+      },
+      "hex": "#0080b3"
+    },
+    {
+      "id": "aqua-green",
+      "name": "Aqua green",
+      "code": "P-T",
+      "oklab": {
+        "l": 0.477,
+        "a": -0.0985,
+        "b": -0.0512
+      },
+      "hex": "#006d7d",
+      "note": "Winsor & Newton; pigment is listed as PALOMAR TURQUOISE and has no CI index, hence code P-T"
+    },
+    {
+      "id": "manganese-blue-nova",
+      "name": "Manganese blue nova",
+      "code": "PB15",
+      "oklab": {
+        "l": 0.6161,
+        "a": -0.1319,
+        "b": -0.1431
+      },
+      "hex": "#0094c7",
+      "note": "mn"
+    },
+    {
+      "id": "manganese-blue",
+      "name": "Manganese blue",
+      "code": "PB33",
+      "oklab": {
+        "l": 0.606,
+        "a": -0.1316,
+        "b": -0.1396
+      },
+      "hex": "#0091c1",
+      "extinct": true,
+      "hideByDefault": true
+    },
+    {
+      "id": "cobalt-turquoise",
+      "name": "Cobalt turquoise",
+      "code": "PB28",
+      "oklab": {
+        "l": 0.6085,
+        "a": -0.1425,
+        "b": -0.0866
+      },
+      "hex": "#0095ad",
+      "note": "t"
+    },
+    {
+      "id": "cobalt-teal",
+      "name": "Cobalt teal",
+      "code": "PG50",
+      "oklab": {
+        "l": 0.6969,
+        "a": -0.1464,
+        "b": -0.0678
+      },
+      "hex": "#00b5c6",
+      "note": "t"
+    },
+    {
+      "id": "cobalt-turquoise-deep",
+      "name": "Cobalt turquoise deep",
+      "code": "PB36",
+      "oklab": {
+        "l": 0.5576,
+        "a": -0.1112,
+        "b": -0.033
+      },
+      "hex": "#00878a"
+    },
+    {
+      "id": "viridian",
+      "name": "Viridian",
+      "code": "PG18",
+      "oklab": {
+        "l": 0.7025,
+        "a": -0.1192,
+        "b": 0.0057
+      },
+      "hex": "#2eb79e"
+    },
+    {
+      "id": "cobalt-green-medium",
+      "name": "Cobalt green medium",
+      "code": "PG26",
+      "oklab": {
+        "l": 0.4651,
+        "a": -0.0664,
+        "b": 0.0069
+      },
+      "hex": "#2a6657"
+    },
+    {
+      "id": "phthalo-green-blueish",
+      "name": "Phthalo green blueish",
+      "code": "PG7",
+      "oklab": {
+        "l": 0.5018,
+        "a": -0.162,
+        "b": 0.0206
+      },
+      "hex": "#00795d"
+    },
+    {
+      "id": "phthalo-green-yellowish",
+      "name": "Phthalo green yellowish",
+      "code": "PG36",
+      "oklab": {
+        "l": 0.5765,
+        "a": -0.1791,
+        "b": 0.0566
+      },
+      "hex": "#00935e"
+    },
+    {
+      "id": "cobalt-green-pure",
+      "name": "Cobalt green pure",
+      "code": "PG19",
+      "oklab": {
+        "l": 0.5074,
+        "a": -0.0963,
+        "b": 0.0337
+      },
+      "hex": "#1d7752"
+    },
+    {
+      "id": "cobalt-green-light",
+      "name": "Cobalt green light",
+      "code": "PG50",
+      "oklab": {
+        "l": 0.5336,
+        "a": -0.1108,
+        "b": 0.0443
+      },
+      "hex": "#118152"
+    },
+    {
+      "id": "perylene-green",
+      "name": "Perylene green",
+      "code": "PBk31",
+      "oklab": {
+        "l": 0.4927,
+        "a": -0.0186,
+        "b": 0.0124
+      },
+      "hex": "#59655a"
+    },
+    {
+      "id": "chrome-oxide-green",
+      "name": "Chrome oxide green",
+      "code": "PG17",
+      "oklab": {
+        "l": 0.5804,
+        "a": -0.0633,
+        "b": 0.0552
+      },
+      "hex": "#608756"
+    },
+    {
+      "id": "terre-verte",
+      "name": "Terre verte",
+      "code": "PG23",
+      "oklab": {
+        "l": 0.7615,
+        "a": -0.0314,
+        "b": 0.0634
+      },
+      "hex": "#aeb884"
+    }
+  ]
+}

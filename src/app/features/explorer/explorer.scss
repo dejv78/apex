@@ -1,0 +1,122 @@
+.bar {
+  background: #5f5f5f;
+  color: #f2f2f2;
+}
+.spacer {
+  flex: 1;
+}
+.hint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.plot svg {
+  width: 100%;
+  max-height: calc(100vh - 6rem);
+  background: #777777;
+}
+.grid {
+  stroke: #ffffff;
+  stroke-opacity: 0.25;
+  fill: none;
+}
+.grid-label {
+  fill: #ffffff;
+  fill-opacity: 0.5;
+  font-size: 11px;
+}
+.hull {
+  fill: #ffffff;
+  fill-opacity: 0.08;
+  stroke: #ffffff;
+  stroke-opacity: 0.6;
+  stroke-dasharray: 5 4;
+}
+.pigment {
+  stroke: #222222;
+  stroke-width: 1;
+  cursor: pointer;
+}
+.pigment:hover {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.pigment.fugitive {
+  stroke-dasharray: 2 2;
+}
+.link {
+  stroke: #ffffff;
+  stroke-opacity: 0.7;
+  stroke-dasharray: 3 3;
+}
+.mix {
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+.panel {
+  background: #6a6a6a;
+  color: #f2f2f2;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.panel h2 {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+}
+.slot {
+  display: flex;
+  flex-direction: column;
+}
+.slot mat-form-field {
+  width: 100%;
+}
+.slot mat-slider {
+  width: 100%;
+  margin: 0;
+}
+.result {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.swatch {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+dl {
+  margin: 0;
+}
+dt {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+dd {
+  margin: 0 0 0.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.credits {
+  padding: 0 1rem 1rem;
+  font-size: 0.8rem;
+  color: #f2f2f2;
+  opacity: 0.85;
+}
+.credits a {
+  color: inherit;
+}

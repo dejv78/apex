@@ -19,9 +19,15 @@ CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy ru
 
 ## Architecture
 
-- `src/core/` (from M1): framework-free domain logic (`color`, `pigments`, `mixing`). No Angular imports. The color library is imported only in `core/color`. Mixing goes through a `MixingModel` interface (Mixbox first, Kubelka-Munk later).
+- `src/core/`: framework-free domain logic (`color`, `pigments`, `gamut`, `mixing`). No Angular imports. The color library is imported only in `core/color`. Mixing goes through a `MixingModel` interface (Mixbox first, Kubelka-Munk later).
 - `src/app/features/`: Angular UI. Angular Material, signals, zoneless, plain services (no NgRx). SVG rendering first; WebGL only after measured need.
 - Fixed neutral mid-gray theme in `src/styles.scss`; do not add dark mode or a theme switcher.
+
+## Gotchas
+
+- Mixbox adds ~156 kB to the bundle, so the initial budget in `angular.json` is 900 kB (warning) / 1.2 MB (error). Mixbox and the pigment data (Artist Pigments) are both CC BY-NC 4.0: non-commercial only, attribution required (footer in the explorer).
+- The convex hull of pigment masstones is not the mixture gamut (see `docs/domain/gamut.md`).
+- `hex` in the pigment data is clipped to sRGB; `oklab` is the primary value. A test checks that hex matches the clamped OKLab value; past corrections are in `docs/domain/pigment-data.md`.
 
 ## Conventions
 

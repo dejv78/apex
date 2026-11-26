@@ -1,0 +1,110 @@
+<mat-toolbar class="bar">
+  <span>Paxt</span>
+  <span class="spacer"></span>
+  <span class="hint">OKLab a/b plane · {{ model.label }} mixing</span>
+</mat-toolbar>
+
+<div class="layout">
+  <section class="plot">
+    <svg
+      [attr.viewBox]="'0 0 ' + size + ' ' + size"
+      role="img"
+      aria-label="Pigments on the OKLab a/b plane"
+    >
+      @for (ring of rings; track ring.c) {
+        <circle class="grid" [attr.cx]="size / 2" [attr.cy]="size / 2" [attr.r]="ring.r" />
+        <text class="grid-label" [attr.x]="size / 2 + 4" [attr.y]="size / 2 - ring.r + 12">
+          C {{ ring.c }}
+        </text>
+      }
+      @for (spoke of spokes; track spoke.deg) {
+        <line
+          class="grid"
+          [attr.x1]="size / 2"
+          [attr.y1]="size / 2"
+          [attr.x2]="spoke.x"
+          [attr.y2]="spoke.y"
+        />
+      }
+      @if (showHull()) {
+        <polygon class="hull" [attr.points]="hullPoints()" />
+      }
+      @for (m of markers(); track m.pigment.id) {
+        <circle
+          class="pigment"
+          [class.fugitive]="m.pigment.fugitive"
+          [attr.cx]="m.x"
+          [attr.cy]="m.y"
+          r="7"
+          [attr.fill]="m.pigment.hex"
+          (click)="pick(m.pigment)"
+        >
+          <title>{{ label(m.pigment) }}</title>
+        </circle>
+      }
+      @if (result(); as r) {
+        @for (s of selectedMarkers(); track $index) {
+          <line class="link" [attr.x1]="s.x" [attr.y1]="s.y" [attr.x2]="r.x" [attr.y2]="r.y" />
+        }
+        <circle class="mix" [attr.cx]="r.x" [attr.cy]="r.y" r="11" [attr.fill]="r.hex" />
+      }
+    </svg>
+  </section>
+
+  <aside class="panel">
+    <h2>Mixer</h2>
+    @for (slot of slots(); track $index; let i = $index) {
+      <div class="slot">
+        <mat-form-field>
+          <mat-label>Pigment {{ i + 1 }}</mat-label>
+          <mat-select [value]="slot.pigmentId" (selectionChange)="setPigment(i, $event.value)">
+            <mat-option [value]="null">None</mat-option>
+            @for (p of allPigments; track p.id) {
+              <mat-option [value]="p.id">{{ label(p) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-slider min="0" max="100" step="1" [disabled]="slot.pigmentId === null">
+          <input matSliderThumb [value]="slot.weight" (valueChange)="setWeight(i, $event)" />
+        </mat-slider>
+      </div>
+    }
+
+    @if (result(); as r) {
+      <div class="result">
+        <div class="swatch" [style.background]="r.hex"></div>
+        <dl>
+          <dt>Result</dt>
+          <dd>{{ r.hex }}</dd>
+          <dt>OKLCH</dt>
+          <dd>
+            L {{ r.lch.l.toFixed(3) }} · C {{ r.lch.c.toFixed(3) }} · h {{ r.lch.h.toFixed(0) }}°
+          </dd>
+        </dl>
+      </div>
+    } @else {
+      <p>Pick at least one pigment with a non-zero amount.</p>
+    }
+
+    <h2>View</h2>
+    <mat-slide-toggle [checked]="showHull()" (change)="showHull.set($event.checked)">
+      Gamut hull
+    </mat-slide-toggle>
+    <mat-slide-toggle [checked]="showHidden()" (change)="showHidden.set($event.checked)">
+      Show all pigments ({{ allPigments.length }})
+    </mat-slide-toggle>
+    <p class="hint">
+      Pigment gamut (a/b hull area): {{ hullArea().toFixed(4) }}. Click a pigment to add it to the
+      mixer.
+    </p>
+  </aside>
+</div>
+
+<footer class="credits">
+  Pigment colors: <a [href]="source.url" target="_blank" rel="noopener">{{ source.name }}</a>,
+  <a [href]="source.licenseUrl" target="_blank" rel="noopener">{{ source.license }}</a>; converted
+  to OKLab by the author. Mixing: Mixbox (Secret Weapons),
+  <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener"
+    >CC BY-NC 4.0</a
+  >.
+</footer>
