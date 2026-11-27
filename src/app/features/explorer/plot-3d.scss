@@ -9,6 +9,16 @@
   background: #777777;
   overflow: hidden;
 }
+/* Single-column layout (phones): the explorer lets the plot area set the height (see
+   `.plot-3d` in explorer.scss), so the canvas fills what is left above the help line. */
+@media (max-width: 900px) {
+  :host {
+    height: 100%;
+  }
+  .wrap {
+    height: 100%;
+  }
+}
 .host {
   position: absolute;
   inset: 0;

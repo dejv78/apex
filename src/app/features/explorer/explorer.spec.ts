@@ -195,6 +195,37 @@ describe('Explorer controls', () => {
     expect(el.querySelector('aside.panel')!.textContent).not.toContain('Drag to rotate');
   });
 
+  it('hides the Shift and Ctrl help on touch devices, following the pointer media query', async () => {
+    const listeners: ((e: { matches: boolean }) => void)[] = [];
+    const fake = {
+      matches: true,
+      addEventListener: (_: string, l: (e: { matches: boolean }) => void) => listeners.push(l),
+      removeEventListener: () => undefined,
+    };
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) =>
+      query === '(pointer: coarse)' ? fake : original.call(window, query)) as typeof matchMedia;
+    try {
+      const { fixture, el } = await setup();
+      const help = () => el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ');
+      expect(help()).toContain('Click a pigment to mix it with the anchor');
+      expect(help()).not.toMatch(/shift|ctrl/i);
+      el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
+      await fixture.whenStable();
+      expect(help()).toContain('Drag to rotate, pinch to zoom, two-finger drag to pan.');
+      expect(Array.from(el.querySelectorAll('p.help .action')).map((a) => a.textContent)).toEqual(
+        expect.arrayContaining(['Drag', 'pinch', 'two-finger drag']),
+      );
+
+      listeners.forEach((l) => l({ matches: false })); // e.g. a keyboard and mouse get attached
+      await fixture.whenStable();
+      expect(help()).toContain('Shift+click');
+      expect(help()).toContain('Drag to rotate, scroll to zoom, right-drag to pan.');
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
   it('drops the shift+click hint at the connection limit', async () => {
     const { el, click, ends } = await setup();
     const names = Array.from(el.querySelectorAll<SVGCircleElement>('circle.hit')).map((c) =>

@@ -20,6 +20,21 @@
   .layout {
     grid-template-columns: minmax(0, 1fr);
   }
+  /*
+   * Phones, 3D: one finger on the canvas rotates, so the page can only be scrolled from the edges.
+   * The canvas and the help line together take 80% of the screen height, which leaves the top of
+   * the side panel visible below as a cue to scroll (`dvh` follows the mobile browser toolbars).
+   */
+  .plot-3d {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    height: 80dvh;
+  }
+  .plot-3d app-plot-3d {
+    flex: 1 1 0;
+    min-height: 0;
+  }
 }
 .help {
   /* Under the plot, in its own grid column, so a tall side panel never touches it. */
@@ -122,7 +137,25 @@
   .hint {
     display: none;
   }
+}
+/* Phones: the title may wrap onto two lines, so the 2D/3D switch always fits (it never shrinks). */
+.mode {
+  flex: none;
+}
+@media (max-width: 600px) {
+  .logo {
+    flex: none;
+    height: 36px;
+    width: 36px;
+    margin-right: 0.5rem;
+  }
   .title {
-    font-size: 1.25rem;
+    min-width: 0;
+    font-size: 1.15rem;
+    line-height: 1.1;
+    white-space: normal;
+  }
+  .mode {
+    margin-left: 0.5rem;
   }
 }

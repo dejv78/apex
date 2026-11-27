@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import type { Oklab } from '../../../core/color/color';
 import { AnchoredModel } from '../../../core/mixing/anchored-model';
 import { MixboxModel } from '../../../core/mixing/mixbox-model';
@@ -24,8 +24,9 @@ import {
 
 export type ViewMode = '2d' | '3d';
 
-/** Camera controls of the 3D view, appended to the help line there. */
+/** Camera controls of the 3D view, appended to the help line there: mouse and touch versions. */
 const CAMERA_HELP = '*Drag* to rotate, *scroll* to zoom, *right-drag* to pan.';
+const CAMERA_HELP_TOUCH = '*Drag* to rotate, *pinch* to zoom, *two-finger drag* to pan.';
 
 /** Ratio steps per pigment pair when sampling the mixture gamut. */
 export const MIXTURE_STEPS = 8;
@@ -68,10 +69,17 @@ export class ExplorerState {
   /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
   readonly atLimit = computed(() => !canAddPigment(this.selection()));
   readonly maxConnections = MAX_CONNECTIONS;
+  /**
+   * The main pointer is a finger, so there are no Shift or Ctrl keys to click with. Follows the
+   * `(pointer: coarse)` media query; stays false where it does not exist (tests, server).
+   */
+  readonly touchOnly = signal(false);
+
   /** What a click can do now (plus how to move the camera in 3D), for the help line under the plot. */
   readonly help = computed(() => {
-    const lines = selectionHelp(this.selection());
-    return this.mode() === '3d' ? [...lines, CAMERA_HELP] : lines;
+    const lines = selectionHelp(this.selection(), !this.touchOnly());
+    if (this.mode() !== '3d') return lines;
+    return [...lines, this.touchOnly() ? CAMERA_HELP_TOUCH : CAMERA_HELP];
   });
 
   readonly visible = computed(() =>
@@ -126,6 +134,15 @@ export class ExplorerState {
     const needed = this.showMixtureGamut() || (this.mode() === '3d' && this.showMixtureCloud());
     return needed ? samplePairMixtures(this.model(), this.visible(), MIXTURE_STEPS) : [];
   });
+
+  constructor() {
+    const query = typeof matchMedia === 'function' ? matchMedia('(pointer: coarse)') : null;
+    if (!query) return;
+    this.touchOnly.set(query.matches);
+    const onChange = (e: MediaQueryListEvent) => this.touchOnly.set(e.matches);
+    query.addEventListener('change', onChange);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
+  }
 
   /** A dropdown picked a pigment, or cleared its slot. */
   pickInSlot(index: number, id: string | null): void {

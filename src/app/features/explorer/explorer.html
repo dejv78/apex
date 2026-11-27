@@ -18,7 +18,7 @@
 </mat-toolbar>
 
 <div class="layout">
-  <section class="plot">
+  <section class="plot" [class.plot-3d]="state.mode() === '3d'">
     @if (state.mode() === '2d') {
       <app-plot-2d />
     } @else {

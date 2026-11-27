@@ -90,16 +90,17 @@ export function slotsFor(selection: readonly string[]): Slot[] {
  * mirrors the rules above and lists only what a click can do in the current state, so it must
  * change together with them (`selection.spec.ts` pins the wording per state).
  *
+ * Without `modifierKeys` (touch devices) the Shift+click and Ctrl+click sentences are left out.
  * Actions are wrapped in `*...*` (see `helpParts`). Shift+click adding is left out at `MAX_CONNECTIONS` (it would be refused); the side panel
  * explains the limit.
  */
-export function selectionHelp(selection: readonly string[]): string[] {
+export function selectionHelp(selection: readonly string[], modifierKeys = true): string[] {
   const count = selection.length;
   if (count === 0) return ['*Click* a pigment to select it as the anchor.'];
   if (count === 1) {
     return [
       '*Click* another pigment to mix it with the anchor.',
-      '*Ctrl+click* a pigment to move the anchor there.',
+      ...(modifierKeys ? ['*Ctrl+click* a pigment to move the anchor there.'] : []),
       '*Click* the anchor to unselect it.',
     ];
   }
@@ -107,11 +108,10 @@ export function selectionHelp(selection: readonly string[]): string[] {
     count === 2
       ? ['*Click* a pigment to mix it with the anchor instead of the current partner.']
       : ['*Click* a pigment to mix only it with the anchor, dropping the other partners.'];
-  if (canAddPigment(selection)) help.push('*Shift+click* adds a pigment to the mix.');
-  help.push(
-    '*Ctrl+click* makes a pigment the anchor.',
-    '*Click* a selected pigment to unselect it.',
-  );
+  if (modifierKeys && canAddPigment(selection))
+    help.push('*Shift+click* adds a pigment to the mix.');
+  if (modifierKeys) help.push('*Ctrl+click* makes a pigment the anchor.');
+  help.push('*Click* a selected pigment to unselect it.');
   return help;
 }
 

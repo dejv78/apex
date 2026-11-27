@@ -201,6 +201,35 @@ describe('selectionHelp', () => {
   });
 });
 
+describe('selectionHelp on touch devices (no modifier keys)', () => {
+  const touch = (selection: string[]) =>
+    selectionHelp(selection, false).join(' ').replaceAll('*', '');
+
+  it('never mentions Shift or Ctrl, in any state', () => {
+    for (const selection of [[], ['a'], ['a', 'b'], ['a', 'b', 'c'], ids(19), ids(20)]) {
+      expect(touch(selection)).not.toMatch(/shift|ctrl/i);
+    }
+  });
+
+  it('keeps the plain click actions that a finger can do', () => {
+    expect(touch([])).toBe('Click a pigment to select it as the anchor.');
+    expect(touch(['a'])).toBe(
+      'Click another pigment to mix it with the anchor. Click the anchor to unselect it.',
+    );
+    expect(touch(['a', 'b'])).toBe(
+      'Click a pigment to mix it with the anchor instead of the current partner. Click a selected pigment to unselect it.',
+    );
+    expect(touch(['a', 'b', 'c'])).toContain('dropping the other partners');
+  });
+
+  it('still starts every line with a highlighted action', () => {
+    for (const selection of [[], ['a'], ['a', 'b'], ['a', 'b', 'c']]) {
+      for (const line of selectionHelp(selection, false))
+        expect(helpParts(line)[0].action).toBe(true);
+    }
+  });
+});
+
 describe('helpParts', () => {
   it('splits a line into plain text and highlighted actions', () => {
     expect(helpParts('*Shift+click* adds a pigment.')).toEqual([

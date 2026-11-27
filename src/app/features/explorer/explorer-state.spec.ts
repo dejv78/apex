@@ -107,6 +107,22 @@ describe('ExplorerState', () => {
     expect(state.slots().map((s) => s.id)).toEqual([null]);
   });
 
+  it('leaves out the Shift and Ctrl help on touch devices and describes the 3D camera with fingers', () => {
+    const state = setup();
+    const text = () => state.help().join(' ');
+    expect(state.touchOnly()).toBe(false); // no matchMedia in the test environment
+    expect(text()).toContain('Shift+click');
+    state.touchOnly.set(true);
+    expect(text()).not.toMatch(/shift|ctrl/i);
+    expect(text()).toContain('Click* a pigment');
+    state.mode.set('3d');
+    expect(text()).toContain('*pinch* to zoom, *two-finger drag* to pan');
+    expect(text()).not.toMatch(/scroll|right-drag/);
+    state.touchOnly.set(false);
+    expect(text()).toContain('*scroll* to zoom, *right-drag* to pan');
+    expect(text()).not.toMatch(/pinch|two-finger/);
+  });
+
   it('keeps the dropdown rules: a taken pigment is disabled elsewhere, clearing the anchor promotes', () => {
     const state = setup();
     expect(state.isTaken('lemon-yellow', 1)).toBe(true);
