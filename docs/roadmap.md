@@ -11,7 +11,7 @@ Work proceeds one milestone at a time; each is reviewed and approved before the 
 ## Backlog (proposed 2026-11-26, to consider later)
 
 - Understanding colors: a plain 2D lightness view (L against chroma) if the 3D view proves too heavy for some users; hue labels, legend for fugitive and extinct pigments, zoom and pan, pigment detail card; tint ladder (mix with white or black); three-pigment mixtures and a lightness-sliced gamut.
-- Usability: mixer state in the URL (shareable mixes); filters for extinct and fugitive pigments; keyboard access and screen-reader labels for the SVG pigments; better phone layout.
+- Usability: mixer state in the URL (shareable mixes); keyboard access and screen-reader labels for the SVG pigments; better phone layout.
 - Project health: component tests for the explorer; browser smoke test in CI against the deployed page; real README (live link, screenshots, license credits); Dependabot.
 
 M1 delivered: `core/color`, `core/pigments` (97 pigments, schema-validated), `core/gamut`
