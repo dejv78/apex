@@ -50,9 +50,16 @@
         </mat-select>
       </mat-form-field>
     }
+    @if (state.atLimit()) {
+      <p class="hint">
+        Limit reached: at most {{ state.maxConnections }} mixing trails are drawn. Remove a pigment
+        to add another.
+      </p>
+    }
     <p class="hint">
       Click a pigment on the plot to make it the anchor, then click another to mix it with the
-      anchor. Click a selected pigment to remove it. Ctrl+click makes a pigment the anchor.
+      anchor. Shift+click adds more pigments, each mixed with all the others. Click a selected
+      pigment to remove it. Ctrl+click makes a pigment the anchor.
     </p>
     @if (state.mode() === '3d') {
       <p class="hint">

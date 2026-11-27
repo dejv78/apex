@@ -28,7 +28,8 @@ describe('Explorer controls', () => {
     expect(dots()).toBeGreaterThan(10);
     expect(ends()).toBe(2);
     expect(el.querySelectorAll('circle.anchor-ring').length).toBe(1);
-    expect(labels()).toEqual(['Anchor', 'Mix with']);
+    // One dropdown per selected pigment, plus an empty one to add the next.
+    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with']);
   });
 
   it('shows only the basic controls, with the rest inside a collapsed "Advanced" accordion', async () => {
@@ -66,7 +67,7 @@ describe('Explorer controls', () => {
     await click('Ultramarine deep'); // second click: mixed with the anchor
     expect(ends()).toBe(2);
     expect(dots()).toBeGreaterThan(10);
-    expect(labels()).toEqual(['Anchor', 'Mix with']);
+    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with']);
 
     await click('Cobalt blue'); // third click: replaces the partner, anchor unchanged
     expect(ends()).toBe(2);
@@ -79,6 +80,56 @@ describe('Explorer controls', () => {
     expect(ends()).toBe(1);
     expect(dots()).toBe(0);
     expect(el.querySelector('circle.end title')?.textContent).toContain('Lemon yellow');
+  });
+
+  it('adds pigments on shift+click, with a trail and a dropdown for each', async () => {
+    const { click, dots, ends, labels, el } = await setup();
+    const pairDots = dots();
+    await click('Viridian', { shiftKey: true }); // third pigment: trails to both others
+    expect(ends()).toBe(3);
+    expect(dots()).toBeGreaterThan(pairDots * 1.5);
+    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with', 'Mix with']);
+    expect(el.querySelectorAll('circle.anchor-ring').length).toBe(1);
+
+    await click('Viridian', { shiftKey: true }); // shift+click again removes it
+    expect(ends()).toBe(2);
+    expect(dots()).toBe(pairDots);
+
+    await click('Viridian', { shiftKey: true });
+    await click('Cobalt blue'); // plain click: back to the anchor and one partner
+    expect(ends()).toBe(2);
+  });
+
+  it('stops adding pigments at the connection limit and says so', async () => {
+    const { fixture, el, click, ends, labels } = await setup();
+    const titles = () =>
+      Array.from(el.querySelectorAll<SVGCircleElement>('circle.hit')).map((c) =>
+        c.querySelector('title')!.textContent!.trim(),
+      );
+    for (const name of titles()) {
+      if (ends() >= 20) break;
+      if (
+        !Array.from(el.querySelectorAll('circle.end title')).some((t) =>
+          t.textContent!.includes(name),
+        )
+      )
+        await click(name, { shiftKey: true });
+    }
+    expect(ends()).toBe(20); // 190 connections
+    expect(el.textContent).toContain('Limit reached');
+    expect(labels().filter((l) => l === 'Mix with')).toHaveLength(19); // no empty dropdown
+    const extra = titles().find(
+      (n) =>
+        !Array.from(el.querySelectorAll('circle.end title')).some((t) =>
+          t.textContent!.includes(n),
+        ),
+    )!;
+    await click(extra, { shiftKey: true });
+    expect(ends()).toBe(20);
+    await click(extra); // a plain click still works: anchor + this pigment
+    expect(ends()).toBe(2);
+    await fixture.whenStable();
+    expect(el.textContent).not.toContain('Limit reached');
   });
 
   it('draws the click targets above the path dots and end markers, so they never block a click', async () => {

@@ -39,6 +39,7 @@ import { clampSrgb, oklabToSrgb, type Oklab } from '../../../core/color/color';
 import { srgbGamutMesh } from '../../../core/gamut/srgb-gamut';
 import { intersectTriangleSets } from '../../../core/gamut/triangle-intersection';
 import type { Pigment } from '../../../core/pigments/pigments';
+import type { PickModifiers } from './explorer-state';
 import {
   CHROMA_RINGS,
   CYLINDER_CHROMA,
@@ -64,8 +65,8 @@ export interface PathView {
     /** The pigment's true color, only when it differs visibly from `lab`. */
     truth: Oklab | null;
   }[];
-  /** Endpoints of the straight OKLab line, when it is shown. */
-  linear: [Oklab, Oklab] | null;
+  /** Endpoints of the straight OKLab line of each pair, when they are shown. */
+  linear: [Oklab, Oklab][];
 }
 
 export interface Hover {
@@ -75,8 +76,8 @@ export interface Hover {
 }
 
 export interface SceneCallbacks {
-  /** A pigment was clicked; `asAnchor` is set for Ctrl/⌘+click. */
-  onPick(pigment: Pigment, asAnchor: boolean): void;
+  /** A pigment was clicked, with the modifier keys held (see `PickModifiers`). */
+  onPick(pigment: Pigment, modifiers: PickModifiers): void;
   onHover(hover: Hover | null): void;
 }
 
@@ -330,9 +331,9 @@ export class ColorScene {
       this.dotTips = path.dots.map((d) => d.tip);
     }
 
-    if (path.linear) {
+    for (const ends of path.linear) {
       const line = new Line(
-        new BufferGeometry().setFromPoints(path.linear.map((l) => v3(toScene(l)))),
+        new BufferGeometry().setFromPoints(ends.map((l) => v3(toScene(l)))),
         new LineDashedMaterial({ color: 0xffffff, dashSize: 0.06, gapSize: 0.04, opacity: 0.7 }),
       );
       line.computeLineDistances();
@@ -615,7 +616,11 @@ export class ColorScene {
     if (!press || e.button !== 0) return;
     if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > CLICK_SLOP) return;
     const hit = this.hitTest(e);
-    if (hit?.pigment) this.callbacks.onPick(hit.pigment, e.ctrlKey || e.metaKey);
+    if (hit?.pigment)
+      this.callbacks.onPick(hit.pigment, {
+        anchor: e.ctrlKey || e.metaKey,
+        additive: e.shiftKey,
+      });
   };
 
   private readonly onPointerMove = (e: PointerEvent): void => {

@@ -4,13 +4,22 @@ import { AnchoredModel } from '../../../core/mixing/anchored-model';
 import { MixboxModel } from '../../../core/mixing/mixbox-model';
 import type { MixingModel } from '../../../core/mixing/mixing-model';
 import {
+  type CurvePoint,
   abDistance,
   evenlySpacedMixCurve,
   labDistance,
   samplePairMixtures,
 } from '../../../core/mixing/sampling';
 import { PIGMENTS, pigmentById, type Pigment } from '../../../core/pigments/pigments';
-import { clickPigment, makeAnchor, setSlot, slotsFor } from './selection';
+import {
+  MAX_CONNECTIONS,
+  canAddPigment,
+  clickPigment,
+  makeAnchor,
+  setSlot,
+  slotsFor,
+  togglePigment,
+} from './selection';
 
 export type ViewMode = '2d' | '3d';
 
@@ -21,6 +30,8 @@ export const MIXTURE_STEPS = 8;
  * few dots, distant pigments many (0.006 is 6 SVG units in the 2D plot).
  */
 export const DOT_SPACING = 0.006;
+/** Cached trails kept before the cache is emptied; bounds memory for long sessions. */
+const TRAIL_CACHE_LIMIT = 5000;
 
 /**
  * State shared by the 2D and 3D plots and the control panel: the pigment selection, the mixing
@@ -50,16 +61,13 @@ export class ExplorerState {
   /** Ids of the pigments to mix, anchor first (see `selection.ts` for the rules). */
   readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-reddish']);
   readonly slots = computed(() => slotsFor(this.selection()));
+  /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
+  readonly atLimit = computed(() => !canAddPigment(this.selection()));
+  readonly maxConnections = MAX_CONNECTIONS;
 
   readonly visible = computed(() =>
     this.showHidden() ? PIGMENTS : PIGMENTS.filter((p) => !p.hideByDefault),
   );
-
-  /** The anchor and its mixing partner, once both are chosen. */
-  readonly pair = computed(() => {
-    const [a, b] = this.selection();
-    return a && b ? ([pigmentById(a), pigmentById(b)] as const) : null;
-  });
 
   /** The lone selected pigment (the anchor, nothing to mix with yet). */
   readonly solo = computed<Pigment | null>(() => {
@@ -67,21 +75,38 @@ export class ExplorerState {
     return id && !other ? pigmentById(id) : null;
   });
 
+  /** Trails already computed, keyed by model, mode and pigment pair (see `pairs`). */
+  private readonly trailCache = new Map<string, CurvePoint[]>();
+
   /**
-   * Mixes of the anchor and its partner, equally spaced along the path; ends included. The path is
-   * measured on the a/b plane in 2D (what that plot shows) and in full OKLab in 3D, where a
-   * difference in lightness is as visible as one in hue or chroma.
+   * A trail for every two selected pigments (N(N-1)/2), each with mixes equally spaced along the
+   * path, ends included. `a` comes before `b` in the selection, so the anchor is always an `a`. The
+   * path is measured on the a/b plane in 2D (what that plot shows) and in full OKLab in 3D, where a
+   * difference in lightness is as visible as one in hue or chroma. Trails are cached per pair, so
+   * adding a pigment only computes its own new trails.
    */
-  readonly transition = computed(() => {
-    const pair = this.pair();
-    if (!pair) return null;
-    const [a, b] = pair;
-    const distance = this.mode() === '3d' ? labDistance : abDistance;
-    return {
-      a,
-      b,
-      samples: evenlySpacedMixCurve(this.model(), a, b, DOT_SPACING, undefined, distance),
-    };
+  readonly pairs = computed(() => {
+    const ids = this.selection();
+    const model = this.model();
+    const mode = this.mode();
+    const distance = mode === '3d' ? labDistance : abDistance;
+    const prefix = `${this.anchored() ? 'anchored' : 'raw'}|${mode}|`;
+    if (this.trailCache.size > TRAIL_CACHE_LIMIT) this.trailCache.clear();
+    const pairs: { a: Pigment; b: Pigment; samples: CurvePoint[] }[] = [];
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const a = pigmentById(ids[i]);
+        const b = pigmentById(ids[j]);
+        const key = `${prefix}${a.id}|${b.id}`;
+        let samples = this.trailCache.get(key);
+        if (!samples) {
+          samples = evenlySpacedMixCurve(model, a, b, DOT_SPACING, undefined, distance);
+          this.trailCache.set(key, samples);
+        }
+        pairs.push({ a, b, samples });
+      }
+    }
+    return pairs;
   });
 
   /**
@@ -104,12 +129,25 @@ export class ExplorerState {
   }
 
   /**
-   * A pigment was clicked on a plot: anchor first, then the partner; clicking a selected one
-   * removes it. With `asAnchor` (Ctrl/⌘+click) it becomes the anchor.
+   * A pigment was clicked on a plot: anchor first, then the partner (replacing any other partners);
+   * clicking a selected one removes it. Ctrl/⌘+click makes it the anchor; Shift+click adds it to
+   * (or removes it from) the selection, keeping the others.
    */
-  pick(pigment: Pigment, asAnchor: boolean): void {
+  pick(pigment: Pigment, modifiers: PickModifiers = {}): void {
     this.selection.update((sel) =>
-      asAnchor ? makeAnchor(sel, pigment.id) : clickPigment(sel, pigment.id),
+      modifiers.anchor
+        ? makeAnchor(sel, pigment.id)
+        : modifiers.additive
+          ? togglePigment(sel, pigment.id)
+          : clickPigment(sel, pigment.id),
     );
   }
+}
+
+/** How a click on a pigment changes the selection. */
+export interface PickModifiers {
+  /** Ctrl/⌘+click: make it the anchor. */
+  anchor?: boolean;
+  /** Shift+click: add to or remove from the selection. */
+  additive?: boolean;
 }

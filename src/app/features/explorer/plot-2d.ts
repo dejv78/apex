@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { convexHull, type Point } from '../../../core/gamut/convex-hull';
 import { srgbSurfaceSamples } from '../../../core/gamut/srgb-gamut';
-import { oklabToHex } from '../../../core/color/color';
+import { oklabToHex, type Oklab } from '../../../core/color/color';
 import { linearOklabCurve } from '../../../core/mixing/sampling';
 import type { Pigment } from '../../../core/pigments/pigments';
 import { ExplorerState } from './explorer-state';
@@ -26,6 +26,12 @@ const toPolygon = (hull: readonly Point[]): string =>
     .map((p) => toSvg(p.x, p.y))
     .map((p) => `${p.x},${p.y}`)
     .join(' ');
+
+interface End {
+  pigment: Pigment;
+  dot: { x: number; y: number; hex: string };
+  truth: { x: number; y: number } | null;
+}
 
 /** The OKLab a/b plane as an SVG plot: pigments, mixing path, gamut outlines and axes. */
 @Component({
@@ -61,31 +67,44 @@ export class Plot2d {
     return samples.length ? toPolygon(convexHull(samples.map((c) => ({ x: c.a, y: c.b })))) : '';
   });
 
-  /** Samples of mixing the anchor into its partner, as dots on the a/b plane, plus both ends. */
+  /**
+   * The trails between every two selected pigments: all their dots on the a/b plane (the ends
+   * excluded), a straight-line baseline per pair, and one end marker per selected pigment.
+   */
   protected readonly transition = computed(() => {
-    const t = this.state.transition();
-    if (!t) return null;
-    const { a, b, samples } = t;
-    const dots = samples.map((s) => ({
-      ...toSvg(s.color.a, s.color.b),
-      hex: oklabToHex(s.color),
-      tip: `${Math.round((1 - s.t) * 100)}% ${a.name} + ${Math.round(s.t * 100)}% ${b.name} · ${oklabToHex(s.color)}`,
-    }));
-    const end = (pigment: Pigment, dot: { x: number; y: number; hex: string }) => {
+    const pairs = this.state.pairs();
+    if (!pairs.length) return null;
+    const dots: { x: number; y: number; hex: string; tip: string }[] = [];
+    const linear: string[] = [];
+    const dotAt = (c: Oklab) => ({ ...toSvg(c.a, c.b), hex: oklabToHex(c) });
+    const ends = new Map<string, End>();
+    const end = (pigment: Pigment, c: Oklab) => {
+      if (ends.has(pigment.id)) return;
+      const dot = dotAt(c);
       const truth = toSvg(pigment.oklab.a, pigment.oklab.b);
       const gap = Math.hypot(truth.x - dot.x, truth.y - dot.y);
-      return { pigment, dot, truth: gap > RING_MIN_DISTANCE ? truth : null };
+      ends.set(pigment.id, { pigment, dot, truth: gap > RING_MIN_DISTANCE ? truth : null });
     };
-    const linear = linearOklabCurve(a, b, LINEAR_STEPS)
-      .map((s) => toSvg(s.color.a, s.color.b))
-      .map((p) => `${p.x},${p.y}`)
-      .join(' ');
-    return {
-      dots: dots.slice(1, -1),
-      from: end(a, dots[0]),
-      to: end(b, dots[dots.length - 1]),
-      linear,
-    };
+    for (const { a, b, samples } of pairs) {
+      end(a, samples[0].color);
+      end(b, samples[samples.length - 1].color);
+      for (const s of samples.slice(1, -1)) {
+        dots.push({
+          ...dotAt(s.color),
+          tip: `${Math.round((1 - s.t) * 100)}% ${a.name} + ${Math.round(s.t * 100)}% ${b.name} · ${oklabToHex(s.color)}`,
+        });
+      }
+      if (this.state.showLinear()) {
+        linear.push(
+          linearOklabCurve(a, b, LINEAR_STEPS)
+            .map((s) => toSvg(s.color.a, s.color.b))
+            .map((p) => `${p.x},${p.y}`)
+            .join(' '),
+        );
+      }
+    }
+    const list = [...ends.values()];
+    return { dots, linear, ends: list, anchor: list[0] };
   });
 
   /** The lone selected pigment, shown at its true color. */
@@ -97,7 +116,10 @@ export class Plot2d {
   });
 
   protected pick(pigment: Pigment, event: MouseEvent): void {
-    this.state.pick(pigment, event.ctrlKey || event.metaKey);
+    this.state.pick(pigment, {
+      anchor: event.ctrlKey || event.metaKey,
+      additive: event.shiftKey,
+    });
   }
 
   protected label(p: Pigment): string {

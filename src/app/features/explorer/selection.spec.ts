@@ -1,4 +1,27 @@
-import { MAX_PIGMENTS, clickPigment, makeAnchor, setSlot, slotsFor } from './selection';
+import {
+  MAX_CONNECTIONS,
+  canAddPigment,
+  connectionCount,
+  clickPigment,
+  makeAnchor,
+  setSlot,
+  slotsFor,
+  togglePigment,
+} from './selection';
+
+const ids = (n: number) => Array.from({ length: n }, (_, i) => `p${i}`);
+
+describe('connection limit', () => {
+  it('counts every pigment mixed with every other', () => {
+    expect([0, 1, 2, 3, 5, 20].map(connectionCount)).toEqual([0, 0, 1, 3, 10, 190]);
+  });
+
+  it('allows 20 pigments (190 connections) but not a 21st (210), with the limit at 200', () => {
+    expect(MAX_CONNECTIONS).toBe(200);
+    expect(canAddPigment(ids(19))).toBe(true);
+    expect(canAddPigment(ids(20))).toBe(false);
+  });
+});
 
 describe('clickPigment', () => {
   it('makes the first clicked pigment the anchor', () => {
@@ -9,9 +32,13 @@ describe('clickPigment', () => {
     expect(clickPigment(['a'], 'b')).toEqual(['a', 'b']);
   });
 
-  it('replaces only the second pigment when a third one is clicked, keeping the anchor', () => {
+  it('replaces only the partner when a third one is clicked, keeping the anchor', () => {
     expect(clickPigment(['a', 'b'], 'c')).toEqual(['a', 'c']);
     expect(clickPigment(['a', 'c'], 'd')).toEqual(['a', 'd']);
+  });
+
+  it('resets a multi-selection to the anchor and the clicked pigment', () => {
+    expect(clickPigment(['a', 'b', 'c', 'd'], 'e')).toEqual(['a', 'e']);
   });
 
   it('unselects a clicked second pigment and keeps the anchor', () => {
@@ -31,21 +58,43 @@ describe('clickPigment', () => {
     clickPigment(input, 'c');
     expect(input).toEqual(['a', 'b']);
   });
+});
 
-  it('generalizes to a larger maximum: new pigments are added, then the last is replaced', () => {
-    expect(clickPigment(['a', 'b'], 'c', 3)).toEqual(['a', 'b', 'c']);
-    expect(clickPigment(['a', 'b', 'c'], 'd', 3)).toEqual(['a', 'b', 'd']);
-    expect(clickPigment(['a', 'b', 'c'], 'a', 3)).toEqual(['b', 'c']);
+describe('togglePigment (shift+click)', () => {
+  it('adds an unselected pigment and keeps the others', () => {
+    expect(togglePigment([], 'a')).toEqual(['a']);
+    expect(togglePigment(['a', 'b'], 'c')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('refuses to add a pigment that would exceed the connection limit', () => {
+    expect(togglePigment(ids(20), 'x')).toEqual(ids(20));
+    expect(togglePigment(ids(19), 'x')).toHaveLength(20);
+  });
+
+  it('removes a selected pigment, also at the limit', () => {
+    expect(togglePigment(['a', 'b', 'c'], 'b')).toEqual(['a', 'c']);
+    expect(togglePigment(ids(20), 'p5')).toHaveLength(19);
+  });
+
+  it('promotes the next pigment when the anchor is removed', () => {
+    expect(togglePigment(['a', 'b', 'c'], 'a')).toEqual(['b', 'c']);
+  });
+
+  it('does not mutate its input', () => {
+    const input = ['a', 'b'];
+    togglePigment(input, 'c');
+    expect(input).toEqual(['a', 'b']);
   });
 });
 
 describe('slotsFor', () => {
-  it('offers N + 1 dropdowns up to the maximum', () => {
-    expect(MAX_PIGMENTS).toBe(2);
+  it('offers N + 1 dropdowns until the connection limit is reached', () => {
     expect(slotsFor([]).map((s) => s.id)).toEqual([null]);
     expect(slotsFor(['a']).map((s) => s.id)).toEqual(['a', null]);
-    expect(slotsFor(['a', 'b']).map((s) => s.id)).toEqual(['a', 'b']);
-    expect(slotsFor(['a', 'b'], 3).map((s) => s.id)).toEqual(['a', 'b', null]);
+    expect(slotsFor(['a', 'b']).map((s) => s.id)).toEqual(['a', 'b', null]);
+    expect(slotsFor(['a', 'b', 'c', 'd', 'e']).map((s) => s.id)).toHaveLength(6);
+    expect(slotsFor(ids(19))).toHaveLength(20); // 190 connections: room for a 20th
+    expect(slotsFor(ids(20))).toHaveLength(20); // 190 connections, a 21st would make 210
   });
 
   it('labels the first dropdown Anchor and the others Mix with', () => {
@@ -74,8 +123,14 @@ describe('setSlot', () => {
     expect(setSlot(['a', 'b'], 1, 'a')).toEqual(['a', 'b']);
   });
 
-  it('never grows beyond the maximum', () => {
-    expect(setSlot(['a', 'b'], 2, 'c')).toEqual(['a', 'b']);
+  it('appends below the connection limit and refuses at it', () => {
+    expect(setSlot(['a', 'b'], 2, 'c')).toEqual(['a', 'b', 'c']);
+    expect(setSlot(ids(20), 20, 'x')).toEqual(ids(20));
+  });
+
+  it('still replaces and clears pigments at the connection limit', () => {
+    expect(setSlot(ids(20), 3, 'x')[3]).toBe('x');
+    expect(setSlot(ids(20), 3, null)).toHaveLength(19);
   });
 });
 

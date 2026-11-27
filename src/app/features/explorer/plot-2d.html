@@ -96,10 +96,10 @@
     />
   }
   @if (transition(); as t) {
-    @if (state.showLinear()) {
-      <polyline class="curve-linear" [attr.points]="t.linear" />
+    @for (points of t.linear; track $index) {
+      <polyline class="curve-linear" [attr.points]="points" />
     }
-    @for (end of [t.from, t.to]; track end.pigment.id) {
+    @for (end of t.ends; track end.pigment.id) {
       @if (end.truth; as truth) {
         <circle class="truth" [attr.cx]="truth.x" [attr.cy]="truth.y" r="11">
           <title>{{ end.pigment.name }}: true color, outside what the model reproduces</title>
@@ -111,8 +111,8 @@
         <title>{{ dot.tip }}</title>
       </circle>
     }
-    <circle class="anchor-ring" [attr.cx]="t.from.dot.x" [attr.cy]="t.from.dot.y" r="14" />
-    @for (end of [t.from, t.to]; track end.pigment.id) {
+    <circle class="anchor-ring" [attr.cx]="t.anchor.dot.x" [attr.cy]="t.anchor.dot.y" r="14" />
+    @for (end of t.ends; track end.pigment.id) {
       <circle
         class="end"
         [attr.cx]="end.dot.x"
@@ -121,7 +121,7 @@
         [attr.fill]="end.dot.hex"
         (click)="pick(end.pigment, $event)"
       >
-        <title>{{ label(end.pigment) }}{{ end === t.from ? ' (anchor)' : '' }}</title>
+        <title>{{ label(end.pigment) }}{{ end === t.anchor ? ' (anchor)' : '' }}</title>
       </circle>
     }
   }

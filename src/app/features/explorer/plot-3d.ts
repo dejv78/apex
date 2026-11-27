@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { oklabToHex, type Oklab } from '../../../core/color/color';
+import type { Pigment } from '../../../core/pigments/pigments';
 import { ExplorerState } from './explorer-state';
 import type { ViewPreset } from './plot-3d-geometry';
 import { ColorScene, type Hover, type PathView } from './plot-3d-scene';
@@ -45,32 +46,39 @@ export class Plot3d {
 
   /** The mixing path (or the lone selected pigment) in the form the scene draws. */
   private readonly path = computed<PathView | null>(() => {
-    const t = this.state.transition();
-    if (t) {
-      const { a, b, samples } = t;
-      const end = (pigment: typeof a, lab: Oklab, anchor: boolean) => ({
-        pigment,
-        lab,
-        hex: oklabToHex(lab),
-        anchor,
-        truth: distance(lab, pigment.oklab) > TRUTH_MIN_DISTANCE ? pigment.oklab : null,
-      });
-      return {
-        dots: samples.slice(1, -1).map((s) => {
+    const pairs = this.state.pairs();
+    if (pairs.length) {
+      const dots: PathView['dots'] = [];
+      const linear: PathView['linear'] = [];
+      const ends = new Map<string, PathView['ends'][number]>();
+      const end = (pigment: Pigment, lab: Oklab) => {
+        if (ends.has(pigment.id)) return;
+        ends.set(pigment.id, {
+          pigment,
+          lab,
+          hex: oklabToHex(lab),
+          anchor: ends.size === 0,
+          truth: distance(lab, pigment.oklab) > TRUTH_MIN_DISTANCE ? pigment.oklab : null,
+        });
+      };
+      for (const { a, b, samples } of pairs) {
+        end(a, samples[0].color);
+        end(b, samples[samples.length - 1].color);
+        for (const s of samples.slice(1, -1)) {
           const hex = oklabToHex(s.color);
           const tip = `${Math.round((1 - s.t) * 100)}% ${a.name} + ${Math.round(s.t * 100)}% ${b.name} · ${hex}`;
-          return { lab: s.color, hex, tip };
-        }),
-        ends: [end(a, samples[0].color, true), end(b, samples[samples.length - 1].color, false)],
-        linear: this.state.showLinear() ? [a.oklab, b.oklab] : null,
-      };
+          dots.push({ lab: s.color, hex, tip });
+        }
+        if (this.state.showLinear()) linear.push([a.oklab, b.oklab]);
+      }
+      return { dots, ends: [...ends.values()], linear };
     }
     const solo = this.state.solo();
     return solo
       ? {
           dots: [],
           ends: [{ pigment: solo, lab: solo.oklab, hex: solo.hex, anchor: true, truth: null }],
-          linear: null,
+          linear: [],
         }
       : null;
   });
@@ -79,7 +87,7 @@ export class Plot3d {
     afterNextRender(() => {
       try {
         this.scene = new ColorScene(this.host().nativeElement, {
-          onPick: (pigment, asAnchor) => this.state.pick(pigment, asAnchor),
+          onPick: (pigment, modifiers) => this.state.pick(pigment, modifiers),
           onHover: (hover) => this.hover.set(hover),
         });
         this.ready.set(true);
