@@ -30,6 +30,8 @@ CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy ru
 - `hex` in the pigment data is clipped to sRGB; `oklab` is the primary value. A test checks that hex matches the clamped OKLab value; past corrections are in `docs/domain/pigment-data.md`.
 - The deploy workflow has a "wait for artifact" step because GitHub sometimes lists the uploaded Pages artifact late, failing `deploy-pages` with "No artifacts named github-pages" (upstream issue actions/deploy-pages#451). If it fails anyway, re-run the job.
 
+- The app is a PWA (ADR 0018). The service worker exists only in production builds, so a stale-cache problem shows up in `npm run build:pages` output (serve it under `/apex/`), never in `npm start`. If `public/logo.svg` changes, re-render the PNG icons in `public/`.
+
 ## Conventions
 
 - English only. Conventional Commits.
