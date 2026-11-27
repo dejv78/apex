@@ -1,0 +1,87 @@
+<h2 mat-dialog-title>Add pigments</h2>
+<mat-dialog-content class="picker">
+  <label class="search">
+    <span class="label">Search by name or code</span>
+    <input
+      type="search"
+      autocomplete="off"
+      cdkFocusInitial
+      placeholder="e.g. cobalt, PB28"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </label>
+
+  <div class="controls">
+    <span class="label" id="order-label">Order</span>
+    <mat-button-toggle-group
+      class="order"
+      aria-labelledby="order-label"
+      [value]="order()"
+      (change)="order.set($event.value)"
+    >
+      <mat-button-toggle value="hue">By hue</mat-button-toggle>
+      <mat-button-toggle value="name">By name</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="families" role="group" aria-label="Color family">
+    <button
+      type="button"
+      class="family"
+      [class.on]="family() === 'all'"
+      [attr.aria-pressed]="family() === 'all'"
+      (click)="family.set('all')"
+    >
+      All ({{ counts().get('all') ?? 0 }})
+    </button>
+    @for (f of families; track f.id) {
+      <button
+        type="button"
+        class="family"
+        [class.on]="family() === f.id"
+        [attr.aria-pressed]="family() === f.id"
+        [disabled]="!counts().get(f.id)"
+        (click)="family.set(f.id)"
+      >
+        {{ f.label }} ({{ counts().get(f.id) ?? 0 }})
+      </button>
+    }
+  </div>
+
+  <ul class="list" aria-label="Pigments">
+    @for (p of results(); track p.id) {
+      <li>
+        <button
+          type="button"
+          class="row"
+          [class.selected]="isSelected(p)"
+          [attr.aria-pressed]="isSelected(p)"
+          [disabled]="isDisabled(p)"
+          (click)="state.pick(p)"
+        >
+          <span class="swatch" [style.background]="p.hex"></span>
+          <span class="code">{{ p.code }}</span>
+          <span class="name">{{ p.name }}</span>
+          @if (isSelected(p)) {
+            <svg class="tick" viewBox="0 0 24 24" aria-label="Selected">
+              <path d="M5 12.5l4.5 4.5L19 7.5" />
+            </svg>
+          }
+        </button>
+      </li>
+    } @empty {
+      <li class="empty">No pigments match.</li>
+    }
+  </ul>
+  @if (state.atLimit()) {
+    <p class="note">
+      Limit reached: at most {{ state.maxConnections }} mixing trails are drawn. Remove a pigment to
+      add another.
+    </p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <span class="count">{{ state.selection().length }} selected</span>
+  <button mat-flat-button mat-dialog-close>Done</button>
+</mat-dialog-actions>

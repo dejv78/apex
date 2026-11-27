@@ -80,6 +80,15 @@
         }
       </mat-chip-set>
     }
+    <button
+      mat-stroked-button
+      class="add-pigment"
+      type="button"
+      [disabled]="state.atLimit()"
+      (click)="openPicker()"
+    >
+      Add pigment…
+    </button>
     @if (state.atLimit()) {
       <p class="hint">
         Limit reached: at most {{ state.maxConnections }} mixing trails are drawn. Remove a pigment

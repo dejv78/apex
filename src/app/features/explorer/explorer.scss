@@ -101,6 +101,15 @@
   /* As tall as the button, so the panel does not jump when the button comes and goes. */
   min-height: 32px;
 }
+.add-pigment {
+  --mat-button-outlined-container-height: 36px;
+  --mat-button-outlined-label-text-color: #f2f2f2;
+  --mat-button-outlined-outline-color: rgba(255, 255, 255, 0.6);
+  --mat-button-outlined-state-layer-color: #fff;
+  --mat-button-outlined-disabled-label-text-color: rgba(255, 255, 255, 0.4);
+  --mat-button-outlined-disabled-outline-color: rgba(255, 255, 255, 0.25);
+  align-self: flex-start;
+}
 .unselect-all {
   --mat-button-outlined-container-height: 32px;
   --mat-button-outlined-label-text-color: #f2f2f2;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
@@ -32,6 +32,7 @@ import { Plot3d } from './plot-3d';
 })
 export class Explorer {
   protected readonly state = inject(ExplorerState);
+  private readonly injector = inject(Injector);
   protected readonly source = PIGMENT_DATASET.source;
   protected readonly licenseUrl = 'https://github.com/dejv78/apex/blob/master/LICENSE';
 
@@ -40,5 +41,15 @@ export class Explorer {
   /** Black or white, whichever reads better on the pigment's color. */
   protected textColor(p: Pigment): string {
     return readableTextColor(hexToSrgb(p.hex));
+  }
+
+  /**
+   * Opens the pigment list with search and filters ("Add pigment..."). The dialog and its form
+   * controls load on first use, so they stay out of the initial bundle (budget in `angular.json`).
+   */
+  protected async openPicker(): Promise<void> {
+    const { openPigmentPicker } = await import('./open-pigment-picker');
+    // The explorer's injector, so the dialog shares this page's `ExplorerState`.
+    openPigmentPicker(this.injector);
   }
 }
