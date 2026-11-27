@@ -144,8 +144,12 @@
 }
 .title {
   margin: 0;
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Fraunces Variable', Georgia, serif;
   font-weight: 500;
+  /* The rounded, quirky look of ADR 0011: SOFT 100, WONK 1 (the old Google Fonts URL pinned the same). */
+  font-variation-settings:
+    'SOFT' 100,
+    'WONK' 1;
   font-size: 1.65rem;
   line-height: 1;
   letter-spacing: 0.005em;
