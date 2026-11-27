@@ -33,6 +33,7 @@ import { Plot3d } from './plot-3d';
 export class Explorer {
   protected readonly state = inject(ExplorerState);
   protected readonly source = PIGMENT_DATASET.source;
+  protected readonly licenseUrl = 'https://github.com/dejv78/apex/blob/master/LICENSE';
 
   protected readonly helpParts = helpParts;
 

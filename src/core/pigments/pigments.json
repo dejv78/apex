@@ -2,7 +2,7 @@
   "source": {
     "name": "Artist Pigments",
     "url": "https://artistpigments.org/",
-    "note": "Values entered manually by the project author from Artist Pigments (site content is licensed CC BY-NC 4.0, per the site footer, checked 2026-11-26); converted to OKLab/hex, with unique ids added. Non-commercial use only; attribution required.",
+    "note": "OKLab and hex values taken from Artist Pigments (site content is licensed CC BY-NC 4.0, per the site footer, checked 2026-11-26), with unique ids added. Non-commercial use only; attribution required.",
     "license": "CC BY-NC 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/"
   },

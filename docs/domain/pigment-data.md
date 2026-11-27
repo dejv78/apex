@@ -4,15 +4,17 @@
 
 `src/core/pigments/pigments.json` was converted from `moody`'s `pigments.ts` (98 entries, now 97 after corrections). Values
 (OKLab, OKLCH, hex) were entered manually by the project author from
-[Artist Pigments](https://artistpigments.org/).
+[Artist Pigments](https://artistpigments.org/); both the OKLab coordinates and the hex values are the
+site's own, not converted by this project.
 
 ## License
 
 Artist Pigments content is licensed **CC BY-NC 4.0** (site footer, checked 2026-11-26). Consequences:
 
 - Non-commercial use only (matches the project; same restriction as Mixbox, ADR 0006).
-- Attribution is required, and changes must be indicated: the app footer credits the source and
-  says the values were converted to OKLab (`Explorer` footer, fed by `PIGMENT_DATASET.source`).
+- Attribution is required, and changes must be indicated: the app footer credits the source for the
+  OKLab and hex values (`Explorer` footer, fed by `PIGMENT_DATASET.source`). The footer also
+  states that the application itself is MIT-licensed, with a link to `LICENSE` on GitHub.
 - The dataset keeps this license even if the app code is licensed differently; keep the `source`
   block in `pigments.json` with the data.
 
