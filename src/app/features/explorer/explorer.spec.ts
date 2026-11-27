@@ -372,7 +372,7 @@ describe('Explorer controls', () => {
 
   it('shows the logo, the title and the view name with its color space in the toolbar', async () => {
     const { fixture, el } = await setup();
-    expect(el.querySelector('.bar h1.title')!.textContent).toContain('Artists palette explorer');
+    expect(el.querySelector('.bar h1.title')!.textContent).toContain('Artists Palette Explorer');
     expect(el.querySelector('.bar img.logo')!.getAttribute('src')).toBe('logo.svg');
 
     const hint = () => el.querySelector('.bar .hint')!.textContent!.replace(/\s+/g, ' ');

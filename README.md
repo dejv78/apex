@@ -1,3 +1,4 @@
-# Artists palette explorer
+# Artists Palette Explorer
 
-Palette exploration tool for painters (short name: apex, for Artists Palette EXplorer).
+- Visualize pigment relations and model mixing behavior in OKLab space
+- Make informed decisions about pigments needed on your palette to cover required color gamut
