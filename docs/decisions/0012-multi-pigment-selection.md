@@ -1,6 +1,8 @@
 # 0012: Multi-pigment selection with all-pairs trails
 
-Status: Accepted (2026-11-27). Supersedes the two-pigment cap of ADR 0009.
+Status: Accepted (2026-11-27). Supersedes the two-pigment cap of ADR 0009. Partly superseded by
+[0013](0013-modifier-free-selection.md): the Shift+click and plain-click rules. The cap of 200
+connections and the all-pairs trails still hold.
 
 ## Context
 

@@ -14,8 +14,6 @@ import { PIGMENTS, pigmentById, type Pigment } from '../../../core/pigments/pigm
 import {
   MAX_CONNECTIONS,
   canAddPigment,
-  clickPigment,
-  makeAnchor,
   selectionHelp,
   setSlot,
   slotsFor,
@@ -63,21 +61,22 @@ export class ExplorerState {
   /** 3D only: every sampled mixture as a point, in its own color. */
   readonly showMixtureCloud = signal(false);
 
-  /** Ids of the pigments to mix, anchor first (see `selection.ts` for the rules). */
+  /** Ids of the pigments to mix, each with every other (see `selection.ts` for the rules). */
   readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-reddish']);
   readonly slots = computed(() => slotsFor(this.selection()));
   /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
   readonly atLimit = computed(() => !canAddPigment(this.selection()));
   readonly maxConnections = MAX_CONNECTIONS;
   /**
-   * The main pointer is a finger, so there are no Shift or Ctrl keys to click with. Follows the
-   * `(pointer: coarse)` media query; stays false where it does not exist (tests, server).
+   * The main pointer is a finger: the 3D camera help then talks about pinching, not scrolling.
+   * Follows the `(pointer: coarse)` media query; stays false where it does not exist (tests,
+   * server).
    */
   readonly touchOnly = signal(false);
 
   /** What a click can do now (plus how to move the camera in 3D), for the help line under the plot. */
   readonly help = computed(() => {
-    const lines = selectionHelp(this.selection(), !this.touchOnly());
+    const lines = selectionHelp(this.selection());
     if (this.mode() !== '3d') return lines;
     return [...lines, this.touchOnly() ? CAMERA_HELP_TOUCH : CAMERA_HELP];
   });
@@ -86,7 +85,7 @@ export class ExplorerState {
     this.showHidden() ? PIGMENTS : PIGMENTS.filter((p) => !p.hideByDefault),
   );
 
-  /** The lone selected pigment (the anchor, nothing to mix with yet). */
+  /** The lone selected pigment (nothing to mix with yet). */
   readonly solo = computed<Pigment | null>(() => {
     const [id, other] = this.selection();
     return id && !other ? pigmentById(id) : null;
@@ -97,7 +96,7 @@ export class ExplorerState {
 
   /**
    * A trail for every two selected pigments (N(N-1)/2), each with mixes equally spaced along the
-   * path, ends included. `a` comes before `b` in the selection, so the anchor is always an `a`. The
+   * path, ends included. `a` comes before `b` in the selection. The
    * path is measured on the a/b plane in 2D (what that plot shows) and in full OKLab in 3D, where a
    * difference in lightness is as visible as one in hue or chroma. Trails are cached per pair, so
    * adding a pigment only computes its own new trails.
@@ -159,26 +158,8 @@ export class ExplorerState {
     return this.selection().some((s, i) => s === id && i !== index);
   }
 
-  /**
-   * A pigment was clicked on a plot: anchor first, then the partner (replacing any other partners);
-   * clicking a selected one removes it. Ctrl/⌘+click makes it the anchor; Shift+click adds it to
-   * (or removes it from) the selection, keeping the others.
-   */
-  pick(pigment: Pigment, modifiers: PickModifiers = {}): void {
-    this.selection.update((sel) =>
-      modifiers.anchor
-        ? makeAnchor(sel, pigment.id)
-        : modifiers.additive
-          ? togglePigment(sel, pigment.id)
-          : clickPigment(sel, pigment.id),
-    );
+  /** A pigment was clicked on a plot: it joins the selection, or leaves it if it was selected. */
+  pick(pigment: Pigment): void {
+    this.selection.update((sel) => togglePigment(sel, pigment.id));
   }
-}
-
-/** How a click on a pigment changes the selection. */
-export interface PickModifiers {
-  /** Ctrl/⌘+click: make it the anchor. */
-  anchor?: boolean;
-  /** Shift+click: add to or remove from the selection. */
-  additive?: boolean;
 }

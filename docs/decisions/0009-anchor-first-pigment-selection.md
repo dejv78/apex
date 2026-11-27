@@ -1,6 +1,8 @@
 # 0009: Anchor-first pigment selection and basic/advanced controls
 
-Status: Accepted (2026-11-26)
+Status: Accepted (2026-11-26). Partly superseded: the two-pigment cap by [0012](0012-multi-pigment-selection.md); the anchor, click
+rules, Ctrl+click and dropdown labels by [0013](0013-modifier-free-selection.md). The basic/advanced
+controls and the click-target layer still hold.
 
 ## Context
 

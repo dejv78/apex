@@ -47,23 +47,22 @@ describe('ExplorerState', () => {
     expect(state.visible().length).toBe(state.allPigments.length);
   });
 
-  it('applies the click rules, with ctrl/cmd making the anchor', () => {
-    const state = setup();
-    const green = state.allPigments.find((p) => p.id === 'viridian')!;
-    state.pick(green);
-    expect(state.selection()).toEqual(['lemon-yellow', 'viridian']);
-    state.pick(green, { anchor: true });
-    expect(state.selection()).toEqual(['viridian', 'lemon-yellow']);
-    const blue = state.allPigments.find((p) => p.id === 'ultramarine-deep')!;
-    state.pick(blue, { anchor: true });
-    expect(state.selection()).toEqual(['ultramarine-deep', 'lemon-yellow']);
-  });
-
-  it('shift+click adds pigments, and every selected pigment gets a trail to every other', () => {
+  it('adds a clicked pigment and removes it when it is clicked again, keeping the others', () => {
     const state = setup();
     const byId = (id: string) => state.allPigments.find((p) => p.id === id)!;
-    state.pick(byId('viridian'), { additive: true });
-    state.pick(byId('ultramarine-deep'), { additive: true });
+    state.pick(byId('viridian'));
+    expect(state.selection()).toEqual(['lemon-yellow', 'phthalo-blue-reddish', 'viridian']);
+    state.pick(byId('lemon-yellow'));
+    expect(state.selection()).toEqual(['phthalo-blue-reddish', 'viridian']);
+    state.pick(byId('viridian'));
+    expect(state.selection()).toEqual(['phthalo-blue-reddish']);
+  });
+
+  it('gives every selected pigment a trail to every other', () => {
+    const state = setup();
+    const byId = (id: string) => state.allPigments.find((p) => p.id === id)!;
+    state.pick(byId('viridian'));
+    state.pick(byId('ultramarine-deep'));
     expect(state.selection()).toEqual([
       'lemon-yellow',
       'phthalo-blue-reddish',
@@ -77,29 +76,33 @@ describe('ExplorerState', () => {
       expect(samples[0].color.a).toBeCloseTo(a.oklab.a, 9);
       expect(samples[samples.length - 1].color.a).toBeCloseTo(b.oklab.a, 9);
     }
-    state.pick(byId('viridian'), { additive: true });
-    expect(state.pairs()).toHaveLength(3);
-    // A plain click resets to the anchor and the clicked pigment.
     state.pick(byId('viridian'));
-    expect(state.selection()).toEqual(['lemon-yellow', 'viridian']);
+    expect(state.pairs()).toHaveLength(3);
+  });
+
+  it('refuses a click that would exceed the connection limit, and still removes at it', () => {
+    const state = setup();
+    const ids = state.allPigments.slice(0, 20).map((p) => p.id);
+    state.selection.set(ids);
+    expect(state.atLimit()).toBe(true);
+    const extra = state.allPigments.find((p) => !ids.includes(p.id))!;
+    state.pick(extra);
+    expect(state.selection()).toEqual(ids);
+    state.pick(state.allPigments[0]);
+    expect(state.selection()).toHaveLength(19);
+    expect(state.atLimit()).toBe(false);
   });
 
   it('reuses cached trails when a pigment is added', () => {
     const state = setup();
     const before = state.pairs()[0].samples;
-    state.pick(
-      state.allPigments.find((p) => p.id === 'viridian')!,
-      { additive: true },
-    );
+    state.pick(state.allPigments.find((p) => p.id === 'viridian')!);
     expect(state.pairs()[0].samples).toBe(before);
   });
 
   it('clears the whole selection at once', () => {
     const state = setup();
-    state.pick(
-      state.allPigments.find((p) => p.id === 'viridian')!,
-      { additive: true },
-    );
+    state.pick(state.allPigments.find((p) => p.id === 'viridian')!);
     state.clearSelection();
     expect(state.selection()).toEqual([]);
     expect(state.pairs()).toEqual([]);
@@ -107,29 +110,30 @@ describe('ExplorerState', () => {
     expect(state.slots().map((s) => s.id)).toEqual([null]);
   });
 
-  it('leaves out the Shift and Ctrl help on touch devices and describes the 3D camera with fingers', () => {
+  it('describes the 3D camera with fingers on touch devices, and with the mouse otherwise', () => {
     const state = setup();
     const text = () => state.help().join(' ');
     expect(state.touchOnly()).toBe(false); // no matchMedia in the test environment
-    expect(text()).toContain('Shift+click');
-    state.touchOnly.set(true);
-    expect(text()).not.toMatch(/shift|ctrl/i);
-    expect(text()).toContain('Click* a pigment');
+    expect(text()).not.toContain('Drag'); // 2D: no camera
     state.mode.set('3d');
-    expect(text()).toContain('*pinch* to zoom, *two-finger drag* to pan');
-    expect(text()).not.toMatch(/scroll|right-drag/);
-    state.touchOnly.set(false);
     expect(text()).toContain('*scroll* to zoom, *right-drag* to pan');
     expect(text()).not.toMatch(/pinch|two-finger/);
+    state.touchOnly.set(true);
+    expect(text()).toContain('*pinch* to zoom, *two-finger drag* to pan');
+    expect(text()).not.toMatch(/scroll|right-drag/);
+    // The click help is the same for a mouse and a finger: no modifier keys anywhere.
+    expect(text()).not.toMatch(/shift|ctrl/i);
+    state.touchOnly.set(false);
+    expect(text()).not.toMatch(/shift|ctrl/i);
   });
 
-  it('keeps the dropdown rules: a taken pigment is disabled elsewhere, clearing the anchor promotes', () => {
+  it('keeps the dropdown rules: a taken pigment is disabled elsewhere, clearing a dropdown removes it', () => {
     const state = setup();
     expect(state.isTaken('lemon-yellow', 1)).toBe(true);
     expect(state.isTaken('lemon-yellow', 0)).toBe(false);
     state.pickInSlot(0, null);
     expect(state.selection()).toEqual(['phthalo-blue-reddish']);
-    expect(state.slots().map((s) => s.label)).toEqual(['Anchor', 'Mix with']);
+    expect(state.slots().map((s) => s.label)).toEqual(['Pigment', 'Add a pigment']);
   });
 
   it('samples the mixtures for the 3D point cloud alone, without the hull (and not in 2D)', () => {

@@ -1,7 +1,8 @@
 # 0010: 3D color cylinder with Three.js
 
 Status: Accepted (2026-11-26). Supersedes [0007](0007-no-webgl-for-now.md) for rendering only; mixing
-and gamut computation stay on the CPU.
+and gamut computation stay on the CPU. The anchor ring and Ctrl+click picking were superseded by
+[0013](0013-modifier-free-selection.md).
 
 ## Context
 

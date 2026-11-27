@@ -1,13 +1,12 @@
 /**
- * The pigments chosen for mixing, as an ordered list of ids. The first one is the anchor: it stays
- * put while the others are swapped. Pure functions, so the click and dropdown rules are testable.
+ * The pigments chosen for mixing, as an ordered list of ids (ADR 0013). Every selected pigment is
+ * mixed with every other one, so the order only decides the dropdown order. Pure functions, so the
+ * click and dropdown rules are testable.
  *
  * Rules:
- * - Clicking an unselected pigment keeps the anchor and makes it the only partner (a plain pair).
- * - Clicking a selected pigment removes it. Removing the anchor promotes the next pigment.
- * - Shift+click adds an unselected pigment to the selection, or removes a selected one (see
- *   `togglePigment`).
- * - Ctrl+click makes a pigment the anchor (see `makeAnchor`).
+ * - Clicking (or tapping) an unselected pigment adds it to the selection; clicking a selected one
+ *   removes it (see `togglePigment`). There are no modifier keys: a mouse and a finger do the same.
+ * - Adding a pigment that would exceed `MAX_CONNECTIONS` is refused; removing is always allowed.
  * - There are always `selection.length + 1` dropdowns, unless adding a pigment would exceed
  *   `MAX_CONNECTIONS`.
  */
@@ -15,7 +14,7 @@
 /**
  * Hard limit on the mixing trails (connections) drawn at once, whatever the selection mode. Each
  * trail costs rendering time, and this keeps the app smooth on weak hardware (ADR 0012). Adding a
- * pigment that would exceed it is refused; removing, replacing and re-anchoring are always allowed.
+ * pigment that would exceed it is refused; removing and replacing are always allowed.
  */
 export const MAX_CONNECTIONS = 200;
 
@@ -40,28 +39,13 @@ export interface Slot {
   label: string;
 }
 
-export function clickPigment(selection: readonly string[], id: string): string[] {
-  if (selection.includes(id)) return selection.filter((s) => s !== id);
-  return selection.length === 0 ? [id] : [selection[0], id];
-}
-
 /**
- * Shift+click: add an unselected pigment, keeping the rest; remove a selected one. Adding is
- * refused (the selection is unchanged) when it would exceed `MAX_CONNECTIONS`.
+ * A click on a pigment: add it if it is not selected, remove it if it is. Adding is refused (the
+ * selection is unchanged) when it would exceed `MAX_CONNECTIONS`.
  */
 export function togglePigment(selection: readonly string[], id: string): string[] {
   if (selection.includes(id)) return selection.filter((s) => s !== id);
   return canAddPigment(selection) ? [...selection, id] : [...selection];
-}
-
-/**
- * Ctrl+click: the pigment becomes the anchor. A selected pigment moves to the front (so the old
- * anchor becomes a partner); an unselected one replaces the anchor and keeps the partners.
- */
-export function makeAnchor(selection: readonly string[], id: string): string[] {
-  if (selection[0] === id) return [...selection];
-  if (selection.includes(id)) return [id, ...selection.filter((s) => s !== id)];
-  return selection.length === 0 ? [id] : [id, ...selection.slice(1)];
 }
 
 /**
@@ -81,7 +65,7 @@ export function slotsFor(selection: readonly string[]): Slot[] {
   return Array.from({ length: count }, (_, index) => ({
     index,
     id: selection[index] ?? null,
-    label: index === 0 ? 'Anchor' : 'Mix with',
+    label: index < selection.length ? 'Pigment' : 'Add a pigment',
   }));
 }
 
@@ -90,29 +74,21 @@ export function slotsFor(selection: readonly string[]): Slot[] {
  * mirrors the rules above and lists only what a click can do in the current state, so it must
  * change together with them (`selection.spec.ts` pins the wording per state).
  *
- * Without `modifierKeys` (touch devices) the Shift+click and Ctrl+click sentences are left out.
- * Actions are wrapped in `*...*` (see `helpParts`). Shift+click adding is left out at `MAX_CONNECTIONS` (it would be refused); the side panel
- * explains the limit.
+ * Adding is left out at `MAX_CONNECTIONS` (it would be refused); the side panel explains the
+ * limit. Actions are wrapped in `*...*` (see `helpParts`).
  */
-export function selectionHelp(selection: readonly string[], modifierKeys = true): string[] {
+export function selectionHelp(selection: readonly string[]): string[] {
   const count = selection.length;
-  if (count === 0) return ['*Click* a pigment to select it as the anchor.'];
+  if (count === 0) return ['*Click* a pigment to select it.'];
   if (count === 1) {
     return [
-      '*Click* another pigment to mix it with the anchor.',
-      ...(modifierKeys ? ['*Ctrl+click* a pigment to move the anchor there.'] : []),
-      '*Click* the anchor to unselect it.',
+      '*Click* another pigment to mix it with the selected one.',
+      '*Click* the selected pigment to unselect it.',
     ];
   }
-  const help =
-    count === 2
-      ? ['*Click* a pigment to mix it with the anchor instead of the current partner.']
-      : ['*Click* a pigment to mix only it with the anchor, dropping the other partners.'];
-  if (modifierKeys && canAddPigment(selection))
-    help.push('*Shift+click* adds a pigment to the mix.');
-  if (modifierKeys) help.push('*Ctrl+click* makes a pigment the anchor.');
-  help.push('*Click* a selected pigment to unselect it.');
-  return help;
+  return canAddPigment(selection)
+    ? ['*Click* a pigment to add it to the mix.', '*Click* a selected pigment to remove it.']
+    : ['*Click* a selected pigment to remove it.'];
 }
 
 export interface HelpPart {

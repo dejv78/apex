@@ -2,9 +2,7 @@ import {
   MAX_CONNECTIONS,
   canAddPigment,
   connectionCount,
-  clickPigment,
   helpParts,
-  makeAnchor,
   selectionHelp,
   setSlot,
   slotsFor,
@@ -25,66 +23,29 @@ describe('connection limit', () => {
   });
 });
 
-describe('clickPigment', () => {
-  it('makes the first clicked pigment the anchor', () => {
-    expect(clickPigment([], 'a')).toEqual(['a']);
-  });
-
-  it('adds the second clicked pigment as the mixing partner of the anchor', () => {
-    expect(clickPigment(['a'], 'b')).toEqual(['a', 'b']);
-  });
-
-  it('replaces only the partner when a third one is clicked, keeping the anchor', () => {
-    expect(clickPigment(['a', 'b'], 'c')).toEqual(['a', 'c']);
-    expect(clickPigment(['a', 'c'], 'd')).toEqual(['a', 'd']);
-  });
-
-  it('resets a multi-selection to the anchor and the clicked pigment', () => {
-    expect(clickPigment(['a', 'b', 'c', 'd'], 'e')).toEqual(['a', 'e']);
-  });
-
-  it('unselects a clicked second pigment and keeps the anchor', () => {
-    expect(clickPigment(['a', 'b'], 'b')).toEqual(['a']);
-  });
-
-  it('unselects a clicked anchor, which promotes the remaining pigment to anchor', () => {
-    expect(clickPigment(['a', 'b'], 'a')).toEqual(['b']);
-  });
-
-  it('unselects the only selected pigment and nothing else happens', () => {
-    expect(clickPigment(['a'], 'a')).toEqual([]);
-  });
-
-  it('does not mutate its input', () => {
-    const input = ['a', 'b'];
-    clickPigment(input, 'c');
-    expect(input).toEqual(['a', 'b']);
-  });
-});
-
-describe('togglePigment (shift+click)', () => {
-  it('adds an unselected pigment and keeps the others', () => {
+describe('togglePigment (click or tap)', () => {
+  it('adds an unselected pigment and keeps the others, in order', () => {
     expect(togglePigment([], 'a')).toEqual(['a']);
+    expect(togglePigment(['a'], 'b')).toEqual(['a', 'b']);
     expect(togglePigment(['a', 'b'], 'c')).toEqual(['a', 'b', 'c']);
   });
 
-  it('refuses to add a pigment that would exceed the connection limit', () => {
+  it('removes a selected pigment, wherever it is in the list', () => {
+    expect(togglePigment(['a', 'b', 'c'], 'b')).toEqual(['a', 'c']);
+    expect(togglePigment(['a', 'b', 'c'], 'a')).toEqual(['b', 'c']);
+    expect(togglePigment(['a'], 'a')).toEqual([]);
+  });
+
+  it('refuses to add a pigment that would exceed the connection limit, but still removes', () => {
     expect(togglePigment(ids(20), 'x')).toEqual(ids(20));
     expect(togglePigment(ids(19), 'x')).toHaveLength(20);
-  });
-
-  it('removes a selected pigment, also at the limit', () => {
-    expect(togglePigment(['a', 'b', 'c'], 'b')).toEqual(['a', 'c']);
     expect(togglePigment(ids(20), 'p5')).toHaveLength(19);
-  });
-
-  it('promotes the next pigment when the anchor is removed', () => {
-    expect(togglePigment(['a', 'b', 'c'], 'a')).toEqual(['b', 'c']);
   });
 
   it('does not mutate its input', () => {
     const input = ['a', 'b'];
     togglePigment(input, 'c');
+    togglePigment(input, 'a');
     expect(input).toEqual(['a', 'b']);
   });
 });
@@ -99,9 +60,14 @@ describe('slotsFor', () => {
     expect(slotsFor(ids(20))).toHaveLength(20); // 190 connections, a 21st would make 210
   });
 
-  it('labels the first dropdown Anchor and the others Mix with', () => {
-    expect(slotsFor(['a']).map((s) => s.label)).toEqual(['Anchor', 'Mix with']);
-    expect(slotsFor([]).map((s) => s.label)).toEqual(['Anchor']);
+  it('labels selected dropdowns Pigment and the empty one Add a pigment (no anchor)', () => {
+    expect(slotsFor(['a', 'b']).map((s) => s.label)).toEqual([
+      'Pigment',
+      'Pigment',
+      'Add a pigment',
+    ]);
+    expect(slotsFor([]).map((s) => s.label)).toEqual(['Add a pigment']);
+    expect(slotsFor(ids(20)).map((s) => s.label)).not.toContain('Add a pigment');
   });
 });
 
@@ -116,7 +82,7 @@ describe('setSlot', () => {
     expect(setSlot(['a', 'b'], 0, 'c')).toEqual(['c', 'b']);
   });
 
-  it('clearing the anchor promotes the next pigment, as clicking it does', () => {
+  it('removes the pigment when its dropdown is cleared, like clicking it does', () => {
     expect(setSlot(['a', 'b'], 0, null)).toEqual(['b']);
     expect(setSlot(['a', 'b'], 1, null)).toEqual(['a']);
   });
@@ -136,105 +102,43 @@ describe('setSlot', () => {
   });
 });
 
-describe('makeAnchor (ctrl+click)', () => {
-  it('makes the first pigment the anchor when nothing is selected', () => {
-    expect(makeAnchor([], 'a')).toEqual(['a']);
-  });
-
-  it('replaces a lone anchor', () => {
-    expect(makeAnchor(['a'], 'b')).toEqual(['b']);
-  });
-
-  it('replaces the anchor with an unselected pigment and keeps the partner', () => {
-    expect(makeAnchor(['a', 'b'], 'c')).toEqual(['c', 'b']);
-  });
-
-  it('swaps the roles when the partner is ctrl+clicked', () => {
-    expect(makeAnchor(['a', 'b'], 'b')).toEqual(['b', 'a']);
-  });
-
-  it('does nothing when the anchor itself is ctrl+clicked', () => {
-    expect(makeAnchor(['a', 'b'], 'a')).toEqual(['a', 'b']);
-  });
-
-  it('does not mutate its input', () => {
-    const input = ['a', 'b'];
-    makeAnchor(input, 'b');
-    expect(input).toEqual(['a', 'b']);
-  });
-});
-
 describe('selectionHelp', () => {
   /** The help as the user reads it, without the `*action*` markers. */
   const text = (selection: string[]) => selectionHelp(selection).join(' ').replaceAll('*', '');
 
-  it('only offers selecting the anchor when nothing is selected', () => {
-    expect(text([])).toBe('Click a pigment to select it as the anchor.');
+  it('offers selecting a pigment when nothing is selected', () => {
+    expect(text([])).toBe('Click a pigment to select it.');
   });
 
-  it('offers mixing, moving the anchor and unselecting it when only the anchor is selected', () => {
-    expect(selectionHelp(['a']).map((l) => l.replaceAll('*', ''))).toEqual([
-      'Click another pigment to mix it with the anchor.',
-      'Ctrl+click a pigment to move the anchor there.',
-      'Click the anchor to unselect it.',
-    ]);
-    expect(text(['a'])).not.toContain('Shift+click');
+  it('offers mixing another pigment or unselecting when one is selected', () => {
+    expect(text(['a'])).toBe(
+      'Click another pigment to mix it with the selected one. Click the selected pigment to unselect it.',
+    );
   });
 
-  it('describes replacing the partner of a pair, adding, re-anchoring and unselecting', () => {
-    const help = text(['a', 'b']);
-    expect(help).toContain('instead of the current partner');
-    expect(help).toContain('Shift+click adds a pigment');
-    expect(help).toContain('Ctrl+click makes a pigment the anchor');
-    expect(help).toContain('unselect it');
-  });
-
-  it('warns that a plain click drops the other partners once there are several', () => {
-    expect(text(['a', 'b', 'c'])).toContain('dropping the other partners');
-    expect(text(['a', 'b'])).not.toContain('dropping');
+  it('offers adding and removing once there are several', () => {
+    const help = 'Click a pigment to add it to the mix. Click a selected pigment to remove it.';
+    expect(text(['a', 'b'])).toBe(help);
+    expect(text(['a', 'b', 'c'])).toBe(help);
+    expect(text(ids(19))).toBe(help);
   });
 
   it('leaves out adding pigments when the connection limit is reached', () => {
-    expect(text(ids(19))).toContain('Shift+click adds');
-    expect(text(ids(20))).not.toContain('Shift+click');
-    expect(text(ids(20))).toContain('Ctrl+click makes a pigment the anchor');
+    expect(text(ids(20))).toBe('Click a selected pigment to remove it.');
   });
-});
 
-describe('selectionHelp on touch devices (no modifier keys)', () => {
-  const touch = (selection: string[]) =>
-    selectionHelp(selection, false).join(' ').replaceAll('*', '');
-
-  it('never mentions Shift or Ctrl, in any state', () => {
+  it('never mentions modifier keys or an anchor, in any state', () => {
     for (const selection of [[], ['a'], ['a', 'b'], ['a', 'b', 'c'], ids(19), ids(20)]) {
-      expect(touch(selection)).not.toMatch(/shift|ctrl/i);
-    }
-  });
-
-  it('keeps the plain click actions that a finger can do', () => {
-    expect(touch([])).toBe('Click a pigment to select it as the anchor.');
-    expect(touch(['a'])).toBe(
-      'Click another pigment to mix it with the anchor. Click the anchor to unselect it.',
-    );
-    expect(touch(['a', 'b'])).toBe(
-      'Click a pigment to mix it with the anchor instead of the current partner. Click a selected pigment to unselect it.',
-    );
-    expect(touch(['a', 'b', 'c'])).toContain('dropping the other partners');
-  });
-
-  it('still starts every line with a highlighted action', () => {
-    for (const selection of [[], ['a'], ['a', 'b'], ['a', 'b', 'c']]) {
-      for (const line of selectionHelp(selection, false))
-        expect(helpParts(line)[0].action).toBe(true);
+      expect(text(selection)).not.toMatch(/shift|ctrl|anchor/i);
     }
   });
 });
 
 describe('helpParts', () => {
   it('splits a line into plain text and highlighted actions', () => {
-    expect(helpParts('*Shift+click* adds a pigment.')).toEqual([
-      { text: 'Shift+click', action: true },
-      { text: ' adds a pigment.', action: false },
+    expect(helpParts('*Click* a pigment.')).toEqual([
+      { text: 'Click', action: true },
+      { text: ' a pigment.', action: false },
     ]);
     expect(helpParts('*Drag* to rotate, *scroll* to zoom.')).toEqual([
       { text: 'Drag', action: true },

@@ -80,11 +80,6 @@ svg {
   stroke-opacity: 0.8;
   stroke-width: 2;
 }
-.anchor-ring {
-  fill: none;
-  stroke: #ffffff;
-  stroke-width: 2;
-}
 .hit {
   fill: rgba(0, 0, 0, 0);
   stroke: none;
@@ -97,7 +92,6 @@ svg {
 .end {
   cursor: pointer;
 }
-.anchor-ring,
 .truth {
   pointer-events: none;
 }

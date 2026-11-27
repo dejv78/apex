@@ -104,7 +104,7 @@ export class Plot2d {
       }
     }
     const list = [...ends.values()];
-    return { dots, linear, ends: list, anchor: list[0] };
+    return { dots, linear, ends: list };
   });
 
   /** The lone selected pigment, shown at its true color. */
@@ -115,11 +115,8 @@ export class Plot2d {
       : null;
   });
 
-  protected pick(pigment: Pigment, event: MouseEvent): void {
-    this.state.pick(pigment, {
-      anchor: event.ctrlKey || event.metaKey,
-      additive: event.shiftKey,
-    });
+  protected pick(pigment: Pigment): void {
+    this.state.pick(pigment);
   }
 
   protected label(p: Pigment): string {

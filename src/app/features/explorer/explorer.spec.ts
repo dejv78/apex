@@ -23,13 +23,12 @@ describe('Explorer controls', () => {
     return { fixture, el, click, dots, ends, labels, marker };
   }
 
-  it('starts with a pre-selected pair, an anchor ring and two dropdowns', async () => {
+  it('starts with a pre-selected pair and a dropdown for each pigment plus an empty one', async () => {
     const { el, dots, ends, labels } = await setup();
     expect(dots()).toBeGreaterThan(10);
     expect(ends()).toBe(2);
-    expect(el.querySelectorAll('circle.anchor-ring').length).toBe(1);
-    // One dropdown per selected pigment, plus an empty one to add the next.
-    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with']);
+    expect(el.querySelector('.anchor-ring')).toBeNull(); // no anchor: all pigments are equal
+    expect(labels()).toEqual(['Pigment', 'Pigment', 'Add a pigment']);
   });
 
   it('shows only the basic controls, with the rest inside a collapsed "Advanced" accordion', async () => {
@@ -50,54 +49,39 @@ describe('Explorer controls', () => {
     expect(el.textContent).not.toContain('Gamut area');
   });
 
-  it('follows the click workflow: anchor, partner, swap partner, remove', async () => {
+  it('adds a clicked pigment with a trail to each of the others, and removes it when clicked again', async () => {
     const { click, dots, ends, labels, el } = await setup();
-    // Start from the pre-selected pair [Lemon yellow, Phthalo blue reddish]; remove both.
-    await click('Lemon yellow'); // anchor removed -> blue becomes the anchor, no pair left
-    expect(dots()).toBe(0);
-    expect(ends()).toBe(1);
-    expect(labels()).toEqual(['Anchor', 'Mix with']);
-    await click('Phthalo blue reddish'); // the only selected pigment is unselected
-    expect(ends()).toBe(0);
-    expect(labels()).toEqual(['Anchor']);
-
-    await click('Lemon yellow'); // first click: anchor
-    expect(ends()).toBe(1);
-    expect(el.querySelectorAll('circle.anchor-ring').length).toBe(1);
-    await click('Ultramarine deep'); // second click: mixed with the anchor
+    const pairDots = dots();
     expect(ends()).toBe(2);
-    expect(dots()).toBeGreaterThan(10);
-    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with']);
 
-    await click('Cobalt blue'); // third click: replaces the partner, anchor unchanged
-    expect(ends()).toBe(2);
+    await click('Viridian'); // a plain click adds: trails to both others
+    expect(ends()).toBe(3);
+    expect(dots()).toBeGreaterThan(pairDots * 1.5);
+    expect(labels()).toEqual(['Pigment', 'Pigment', 'Pigment', 'Add a pigment']);
+
+    await click('Cobalt blue');
+    expect(ends()).toBe(4);
+
+    await click('Viridian'); // clicking a selected pigment removes it, the others stay
+    expect(ends()).toBe(3);
     const titles = Array.from(el.querySelectorAll('circle.end title')).map((t) => t.textContent);
     expect(titles.join(' ')).toContain('Lemon yellow');
     expect(titles.join(' ')).toContain('Cobalt blue');
-    expect(titles.join(' ')).not.toContain('Ultramarine');
+    expect(titles.join(' ')).not.toContain('Viridian');
 
-    await click('Cobalt blue'); // unselect the partner: anchor stays
+    await click('Lemon yellow'); // any pigment can go, including the first selected
+    await click('Phthalo blue reddish');
+    await click('Cobalt blue');
+    expect(ends()).toBe(0);
+    expect(dots()).toBe(0);
+    expect(labels()).toEqual(['Add a pigment']);
+
+    await click('Lemon yellow'); // a lone pigment is shown at its true color
     expect(ends()).toBe(1);
     expect(dots()).toBe(0);
-    expect(el.querySelector('circle.end title')?.textContent).toContain('Lemon yellow');
-  });
-
-  it('adds pigments on shift+click, with a trail and a dropdown for each', async () => {
-    const { click, dots, ends, labels, el } = await setup();
-    const pairDots = dots();
-    await click('Viridian', { shiftKey: true }); // third pigment: trails to both others
-    expect(ends()).toBe(3);
-    expect(dots()).toBeGreaterThan(pairDots * 1.5);
-    expect(labels()).toEqual(['Anchor', 'Mix with', 'Mix with', 'Mix with']);
-    expect(el.querySelectorAll('circle.anchor-ring').length).toBe(1);
-
-    await click('Viridian', { shiftKey: true }); // shift+click again removes it
+    await click('Ultramarine deep');
     expect(ends()).toBe(2);
-    expect(dots()).toBe(pairDots);
-
-    await click('Viridian', { shiftKey: true });
-    await click('Cobalt blue'); // plain click: back to the anchor and one partner
-    expect(ends()).toBe(2);
+    expect(dots()).toBeGreaterThan(10);
   });
 
   it('stops adding pigments at the connection limit and says so', async () => {
@@ -113,21 +97,21 @@ describe('Explorer controls', () => {
           t.textContent!.includes(name),
         )
       )
-        await click(name, { shiftKey: true });
+        await click(name);
     }
     expect(ends()).toBe(20); // 190 connections
     expect(el.textContent).toContain('Limit reached');
-    expect(labels().filter((l) => l === 'Mix with')).toHaveLength(19); // no empty dropdown
+    expect(labels()).toEqual(Array(20).fill('Pigment')); // no empty dropdown
     const extra = titles().find(
       (n) =>
         !Array.from(el.querySelectorAll('circle.end title')).some((t) =>
           t.textContent!.includes(n),
         ),
     )!;
-    await click(extra, { shiftKey: true });
+    await click(extra); // refused: it would make 210 connections
     expect(ends()).toBe(20);
-    await click(extra); // a plain click still works: anchor + this pigment
-    expect(ends()).toBe(2);
+    await click('Lemon yellow'); // removing still works, and frees room
+    expect(ends()).toBe(19);
     await fixture.whenStable();
     expect(el.textContent).not.toContain('Limit reached');
   });
@@ -138,15 +122,15 @@ describe('Explorer controls', () => {
     expect(button()?.textContent).toContain('Unselect all');
     expect(el.querySelector('.panel-head h2')?.textContent).toContain('Mix pigments');
     expect(el.querySelector('.panel-head button.unselect-all')).not.toBeNull(); // same row
-    await click('Viridian', { shiftKey: true });
-    await click('Cobalt blue', { shiftKey: true });
+    await click('Viridian');
+    await click('Cobalt blue');
     expect(ends()).toBe(4);
 
     button()!.click();
     await fixture.whenStable();
     expect(ends()).toBe(0);
     expect(dots()).toBe(0);
-    expect(labels()).toEqual(['Anchor']);
+    expect(labels()).toEqual(['Add a pigment']);
     expect(button()).toBeNull();
 
     await click('Lemon yellow'); // selecting again brings the button back
@@ -155,27 +139,32 @@ describe('Explorer controls', () => {
   });
 
   it('shows help under the plot, in the plot column, that follows what a click can do', async () => {
-    const { fixture, el, click, ends } = await setup();
+    const { fixture, el, click } = await setup();
     /** The help as rendered: the browser collapses runs of whitespace. */
-    const helpEl = () => el.querySelector<HTMLElement>('section.plot > p.help')!;
-    const help = () => ({ textContent: helpEl().textContent!.replace(/\s+/g, ' ').trim() });
-    expect(help().textContent).toContain('Shift+click adds a pigment');
-    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Shift+click');
+    const help = () =>
+      el
+        .querySelector<HTMLElement>('section.plot > p.help')!
+        .textContent!.replace(/\s+/g, ' ')
+        .trim();
+    expect(help()).toBe(
+      'Click a pigment to add it to the mix. Click a selected pigment to remove it.',
+    );
+    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Click a pigment');
 
     el.querySelector<HTMLButtonElement>('button.unselect-all')!.click();
     await fixture.whenStable();
-    expect(help().textContent!.trim()).toBe('Click a pigment to select it as the anchor.');
+    expect(help()).toBe('Click a pigment to select it.');
 
     await click('Lemon yellow');
-    expect(help().textContent).toContain('Click another pigment to mix it with the anchor.');
-    expect(help().textContent).toContain('move the anchor');
-    expect(help().textContent).not.toContain('Shift+click');
+    expect(help()).toBe(
+      'Click another pigment to mix it with the selected one. Click the selected pigment to unselect it.',
+    );
 
     await click('Viridian');
-    expect(help().textContent).toContain('instead of the current partner');
-    await click('Cobalt blue', { shiftKey: true });
-    expect(ends()).toBe(3);
-    expect(help().textContent).toContain('dropping the other partners');
+    expect(help()).toBe(
+      'Click a pigment to add it to the mix. Click a selected pigment to remove it.',
+    );
+    expect(help()).not.toMatch(/shift|ctrl|anchor/i); // no modifier keys, no anchor, anywhere
   });
 
   it('adds the camera controls to the help line in 3D, and no sidebar hint or view-button text', async () => {
@@ -185,17 +174,15 @@ describe('Explorer controls', () => {
     el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
     await fixture.whenStable();
     expect(help()).toContain('Drag to rotate, scroll to zoom, right-drag to pan.');
-    expect(help()).toContain('Shift+click adds a pigment'); // the click help stays
+    expect(help()).toContain('Click a pigment to add it to the mix.'); // the click help stays
     const actions = Array.from(el.querySelectorAll('p.help .action')).map((a) => a.textContent);
-    expect(actions).toEqual(
-      expect.arrayContaining(['Drag', 'scroll', 'right-drag', 'Shift+click']),
-    );
+    expect(actions).toEqual(expect.arrayContaining(['Click', 'Drag', 'scroll', 'right-drag']));
     expect(help()).not.toContain('*');
     expect(el.textContent).not.toContain('view buttons');
     expect(el.querySelector('aside.panel')!.textContent).not.toContain('Drag to rotate');
   });
 
-  it('hides the Shift and Ctrl help on touch devices, following the pointer media query', async () => {
+  it('describes the 3D camera with fingers on touch devices, following the pointer media query', async () => {
     const listeners: ((e: { matches: boolean }) => void)[] = [];
     const fake = {
       matches: true,
@@ -208,7 +195,7 @@ describe('Explorer controls', () => {
     try {
       const { fixture, el } = await setup();
       const help = () => el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ');
-      expect(help()).toContain('Click a pigment to mix it with the anchor');
+      expect(help()).toContain('Click a pigment to add it to the mix.'); // same click help as a mouse
       expect(help()).not.toMatch(/shift|ctrl/i);
       el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
       await fixture.whenStable();
@@ -219,24 +206,26 @@ describe('Explorer controls', () => {
 
       listeners.forEach((l) => l({ matches: false })); // e.g. a keyboard and mouse get attached
       await fixture.whenStable();
-      expect(help()).toContain('Shift+click');
       expect(help()).toContain('Drag to rotate, scroll to zoom, right-drag to pan.');
     } finally {
       window.matchMedia = original;
     }
   });
 
-  it('drops the shift+click hint at the connection limit', async () => {
+  it('drops the adding hint from the help at the connection limit', async () => {
     const { el, click, ends } = await setup();
+    const selected = () =>
+      Array.from(el.querySelectorAll('circle.end title')).map((t) => t.textContent!.trim());
     const names = Array.from(el.querySelectorAll<SVGCircleElement>('circle.hit')).map((c) =>
       c.querySelector('title')!.textContent!.trim(),
     );
     for (const name of names) {
       if (ends() >= 20) break;
-      await click(name, { shiftKey: true });
+      if (!selected().includes(name)) await click(name);
     }
     expect(ends()).toBe(20);
-    expect(el.querySelector('p.help')!.textContent).not.toContain('Shift+click');
+    const help = el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ').trim();
+    expect(help).toBe('Click a selected pigment to remove it.');
   });
 
   it('draws the click targets above the path dots and end markers, so they never block a click', async () => {
@@ -245,7 +234,6 @@ describe('Explorer controls', () => {
     const covering = [
       ...Array.from(el.querySelectorAll('circle.dot')),
       ...Array.from(el.querySelectorAll('circle.end')),
-      ...Array.from(el.querySelectorAll('circle.anchor-ring')),
     ];
     expect(hits.length).toBeGreaterThan(20);
     expect(covering.length).toBeGreaterThan(10);
@@ -263,37 +251,6 @@ describe('Explorer controls', () => {
     end.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await fixture.whenStable();
     expect(ends()).toBe(1);
-  });
-
-  it('makes a pigment the anchor on ctrl+click and swaps roles with the partner', async () => {
-    const { click, el, ends } = await setup();
-    const anchorTitle = () =>
-      Array.from(el.querySelectorAll('circle.end title'))
-        .map((t) => t.textContent ?? '')
-        .find((t) => t.includes('(anchor)'));
-    expect(anchorTitle()).toContain('Lemon yellow');
-
-    await click('Phthalo blue reddish', { ctrlKey: true }); // partner -> anchor, roles swap
-    expect(ends()).toBe(2);
-    expect(anchorTitle()).toContain('Phthalo blue');
-
-    await click('Ultramarine deep', { ctrlKey: true }); // unselected -> replaces the anchor
-    expect(ends()).toBe(2);
-    expect(anchorTitle()).toContain('Ultramarine deep');
-    const all = Array.from(el.querySelectorAll('circle.end title')).map((t) => t.textContent);
-    expect(all.join(' ')).toContain('Lemon yellow'); // the former anchor is the partner now
-    expect(all.join(' ')).not.toContain('Phthalo');
-
-    await click('Lemon yellow', { metaKey: true }); // ⌘+click works like ctrl+click
-    expect(anchorTitle()).toContain('Lemon yellow');
-  });
-
-  it('promotes the partner to anchor when the anchor is clicked', async () => {
-    const { click, el, ends } = await setup();
-    await click('Lemon yellow');
-    expect(ends()).toBe(1);
-    expect(el.querySelector('circle.end title')?.textContent).toContain('Phthalo blue');
-    expect(el.querySelector('circle.end title')?.textContent).toContain('(anchor)');
   });
 
   it('switches between the 2D and 3D views, loading the 3D view on demand', async () => {

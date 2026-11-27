@@ -57,7 +57,6 @@ export class Plot3d {
           pigment,
           lab,
           hex: oklabToHex(lab),
-          anchor: ends.size === 0,
           truth: distance(lab, pigment.oklab) > TRUTH_MIN_DISTANCE ? pigment.oklab : null,
         });
       };
@@ -77,7 +76,7 @@ export class Plot3d {
     return solo
       ? {
           dots: [],
-          ends: [{ pigment: solo, lab: solo.oklab, hex: solo.hex, anchor: true, truth: null }],
+          ends: [{ pigment: solo, lab: solo.oklab, hex: solo.hex, truth: null }],
           linear: [],
         }
       : null;
@@ -87,7 +86,7 @@ export class Plot3d {
     afterNextRender(() => {
       try {
         this.scene = new ColorScene(this.host().nativeElement, {
-          onPick: (pigment, modifiers) => this.state.pick(pigment, modifiers),
+          onPick: (pigment) => this.state.pick(pigment),
           onHover: (hover) => this.hover.set(hover),
         });
         this.ready.set(true);

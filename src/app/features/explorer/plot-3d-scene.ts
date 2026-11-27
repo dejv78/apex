@@ -39,7 +39,6 @@ import { clampSrgb, oklabToSrgb, type Oklab } from '../../../core/color/color';
 import { srgbGamutMesh } from '../../../core/gamut/srgb-gamut';
 import { intersectTriangleSets } from '../../../core/gamut/triangle-intersection';
 import type { Pigment } from '../../../core/pigments/pigments';
-import type { PickModifiers } from './explorer-state';
 import {
   CHROMA_RINGS,
   CYLINDER_CHROMA,
@@ -61,7 +60,6 @@ export interface PathView {
     /** Where the model puts the end (the true color when mixes are corrected). */
     lab: Oklab;
     hex: string;
-    anchor: boolean;
     /** The pigment's true color, only when it differs visibly from `lab`. */
     truth: Oklab | null;
   }[];
@@ -76,8 +74,8 @@ export interface Hover {
 }
 
 export interface SceneCallbacks {
-  /** A pigment was clicked, with the modifier keys held (see `PickModifiers`). */
-  onPick(pigment: Pigment, modifiers: PickModifiers): void;
+  /** A pigment was clicked or tapped. */
+  onPick(pigment: Pigment): void;
   onHover(hover: Hover | null): void;
 }
 
@@ -346,18 +344,12 @@ export class ColorScene {
       const mesh = new Mesh(sphere, new MeshBasicMaterial({ color: new Color(end.hex) }));
       mesh.position.set(x, y, z);
       mesh.userData['pigment'] = end.pigment;
-      mesh.userData['tip'] =
-        `${end.pigment.name} (${end.pigment.code})${end.anchor ? ' (anchor)' : ''}`;
+      mesh.userData['tip'] = `${end.pigment.name} (${end.pigment.code})`;
       const outline = new Mesh(sphere, new MeshBasicMaterial({ color: 0xffffff, side: BackSide }));
       outline.position.copy(mesh.position);
       outline.scale.setScalar(1.28);
       this.pathGroup.add(outline, mesh);
       this.endMeshes.push(mesh);
-      if (end.anchor) {
-        const ring = ringSprite(END_RADIUS * 1.9);
-        ring.position.copy(mesh.position);
-        this.pathGroup.add(ring);
-      }
       if (end.truth) {
         const [tx, ty, tz] = toScene(end.truth);
         const truth = ringSprite(END_RADIUS * 1.35, 0.8);
@@ -616,11 +608,7 @@ export class ColorScene {
     if (!press || e.button !== 0) return;
     if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > CLICK_SLOP) return;
     const hit = this.hitTest(e);
-    if (hit?.pigment)
-      this.callbacks.onPick(hit.pigment, {
-        anchor: e.ctrlKey || e.metaKey,
-        additive: e.shiftKey,
-      });
+    if (hit?.pigment) this.callbacks.onPick(hit.pigment);
   };
 
   private readonly onPointerMove = (e: PointerEvent): void => {

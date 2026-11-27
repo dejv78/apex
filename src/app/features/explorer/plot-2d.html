@@ -111,7 +111,6 @@
         <title>{{ dot.tip }}</title>
       </circle>
     }
-    <circle class="anchor-ring" [attr.cx]="t.anchor.dot.x" [attr.cy]="t.anchor.dot.y" r="14" />
     @for (end of t.ends; track end.pigment.id) {
       <circle
         class="end"
@@ -119,28 +118,27 @@
         [attr.cy]="end.dot.y"
         r="8"
         [attr.fill]="end.dot.hex"
-        (click)="pick(end.pigment, $event)"
+        (click)="pick(end.pigment)"
       >
-        <title>{{ label(end.pigment) }}{{ end === t.anchor ? ' (anchor)' : '' }}</title>
+        <title>{{ label(end.pigment) }}</title>
       </circle>
     }
   }
   @if (solo(); as s) {
-    <circle class="anchor-ring" [attr.cx]="s.x" [attr.cy]="s.y" r="14" />
     <circle
       class="end"
       [attr.cx]="s.x"
       [attr.cy]="s.y"
       r="8"
       [attr.fill]="s.hex"
-      (click)="pick(s.pigment, $event)"
+      (click)="pick(s.pigment)"
     >
-      <title>{{ label(s.pigment) }} (anchor)</title>
+      <title>{{ label(s.pigment) }}</title>
     </circle>
   }
   <!-- Click targets, drawn last so that path dots and end markers never block a click. -->
   @for (m of markers(); track m.pigment.id) {
-    <circle class="hit" [attr.cx]="m.x" [attr.cy]="m.y" r="9" (click)="pick(m.pigment, $event)">
+    <circle class="hit" [attr.cx]="m.x" [attr.cy]="m.y" r="9" (click)="pick(m.pigment)">
       <title>{{ label(m.pigment) }}</title>
     </circle>
   }
