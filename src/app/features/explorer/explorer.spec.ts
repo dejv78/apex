@@ -154,10 +154,12 @@ describe('Explorer controls', () => {
     expect(el.textContent).not.toContain('Limit reached');
   });
 
-  it('clears the whole selection with the "Unselect all" button, which is hidden when empty', async () => {
+  it('clears the whole selection with the "Unselect all" icon button, which is disabled when empty', async () => {
     const { fixture, el, click, ends, dots, chipTexts } = await setup();
     const button = () => el.querySelector<HTMLButtonElement>('button.unselect-all');
-    expect(button()?.textContent).toContain('Unselect all');
+    expect(button()?.getAttribute('aria-label')).toBe('Unselect all');
+    expect(button()?.getAttribute('title')).toBe('Unselect all'); // the tooltip of the icon
+    expect(button()?.textContent?.trim()).toBe(''); // an icon only
     expect(el.querySelector('.panel-head h2')?.textContent).toContain('Mix pigments');
     expect(el.querySelector('.panel-head button.unselect-all')).not.toBeNull(); // same row
     await click('Viridian');
@@ -170,11 +172,11 @@ describe('Explorer controls', () => {
     expect(dots()).toBe(0);
     expect(chipTexts()).toEqual([]);
     expect(el.textContent).toContain('No pigments selected');
-    expect(button()).toBeNull();
+    expect(button()!.disabled).toBe(true); // nothing to clear; it stays so the header does not jump
 
-    await click('Lemon yellow'); // selecting again brings the button back
+    await click('Lemon yellow'); // selecting again enables the button
     expect(ends()).toBe(1);
-    expect(button()).not.toBeNull();
+    expect(button()!.disabled).toBe(false);
   });
 
   it('shows help under the plot, in the plot column, that follows what a click can do', async () => {

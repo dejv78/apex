@@ -20,7 +20,7 @@ CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy ru
 ## Architecture
 
 - `src/core/`: framework-free domain logic (`color`, `pigments`, `gamut`, `mixing`). No Angular imports. The color library is imported only in `core/color`. Mixing goes through a `MixingModel` interface (Mixbox, wrapped by `AnchoredModel` so pure pigments sit at their true OKLab colors; Kubelka-Munk deferred).
-- `src/app/features/explorer/`: Angular UI (Angular Material, signals, zoneless, plain services, no NgRx). `ExplorerState` holds the selection, mixing model and toggles, shared by the 2D plot (SVG, `plot-2d`) and the lazy-loaded 3D plot (Three.js, `plot-3d`; ADR 0010). Import `three` only in `plot-3d-scene.ts`. Mixing and gamut computation stay on the CPU (ADR 0007, `docs/domain/performance.md`).
+- `src/app/features/explorer/`: Angular UI (Angular Material, signals, zoneless, plain services, no NgRx). `ExplorerState` holds the selection, mixing model and toggles, shared by the 2D plot (SVG, `plot-2d`) and the lazy-loaded 3D plot (Three.js, `plot-3d`; ADR 0010). Import `three` only in `plot-3d-scene.ts`. The explorer state (selection, view, toggles) is mirrored in the URL query string (`explorer-url.ts`, ADR 0021); pigment ids in links are stable keys, so do not rename ids without a mapping. Mixing and gamut computation stay on the CPU (ADR 0007, `docs/domain/performance.md`).
 - Fixed neutral mid-gray theme in `src/styles.scss`; do not add dark mode or a theme switcher.
 
 ## Gotchas

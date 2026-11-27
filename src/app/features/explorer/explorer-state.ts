@@ -11,9 +11,10 @@ import {
   samplePairMixtures,
 } from '../../../core/mixing/sampling';
 import { PIGMENTS, pigmentById, type Pigment } from '../../../core/pigments/pigments';
+import { DEFAULT_SNAPSHOT, type ExplorerSnapshot } from './explorer-url';
 import { MAX_CONNECTIONS, canAddPigment, selectionHelp, togglePigment } from './selection';
 
-export type ViewMode = '2d' | '3d';
+export type ViewMode = ExplorerSnapshot['mode'];
 
 /** Camera controls of the 3D view, appended to the help line there: mouse and touch versions. */
 const CAMERA_HELP = '*Drag* to rotate, *scroll* to zoom, *right-drag* to pan.';
@@ -36,26 +37,26 @@ const TRAIL_CACHE_LIMIT = 5000;
 @Injectable()
 export class ExplorerState {
   readonly allPigments = PIGMENTS;
-  readonly mode = signal<ViewMode>('2d');
+  readonly mode = signal<ViewMode>(DEFAULT_SNAPSHOT.mode);
 
   private readonly rawModel: MixingModel = new MixboxModel();
   private readonly anchoredModel: MixingModel = new AnchoredModel(this.rawModel);
   /** Pin mixes to the pigments' true OKLab colors (the raw model clamps them to sRGB). */
-  readonly anchored = signal(true);
+  readonly anchored = signal(DEFAULT_SNAPSHOT.anchored);
   readonly model = computed<MixingModel>(() =>
     this.anchored() ? this.anchoredModel : this.rawModel,
   );
 
-  readonly showHidden = signal(false);
+  readonly showHidden = signal(DEFAULT_SNAPSHOT.showHidden);
   /** The hull around all mixtures: the outline in 2D, a translucent solid in 3D. */
-  readonly showMixtureGamut = signal(true);
-  readonly showLinear = signal(false);
-  readonly showSrgb = signal(false);
+  readonly showMixtureGamut = signal(DEFAULT_SNAPSHOT.showMixtureGamut);
+  readonly showLinear = signal(DEFAULT_SNAPSHOT.showLinear);
+  readonly showSrgb = signal(DEFAULT_SNAPSHOT.showSrgb);
   /** 3D only: every sampled mixture as a point, in its own color. */
-  readonly showMixtureCloud = signal(false);
+  readonly showMixtureCloud = signal(DEFAULT_SNAPSHOT.showMixtureCloud);
 
   /** Ids of the pigments to mix, each with every other (see `selection.ts` for the rules). */
-  readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-reddish']);
+  readonly selection = signal<string[]>([...DEFAULT_SNAPSHOT.selection]);
   /** The selected pigments, in selection order (the chips in the panel). */
   readonly selected = computed<Pigment[]>(() => this.selection().map(pigmentById));
   /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
@@ -74,6 +75,18 @@ export class ExplorerState {
     if (this.mode() !== '3d') return lines;
     return [...lines, this.touchOnly() ? CAMERA_HELP_TOUCH : CAMERA_HELP];
   });
+
+  /** The part of the state that goes into the address (see `explorer-url.ts`). */
+  readonly snapshot = computed<ExplorerSnapshot>(() => ({
+    selection: this.selection(),
+    mode: this.mode(),
+    showHidden: this.showHidden(),
+    showMixtureGamut: this.showMixtureGamut(),
+    showLinear: this.showLinear(),
+    showSrgb: this.showSrgb(),
+    showMixtureCloud: this.showMixtureCloud(),
+    anchored: this.anchored(),
+  }));
 
   readonly visible = computed(() =>
     this.showHidden() ? PIGMENTS : PIGMENTS.filter((p) => !p.hideByDefault),
@@ -135,6 +148,18 @@ export class ExplorerState {
     const onChange = (e: MediaQueryListEvent) => this.touchOnly.set(e.matches);
     query.addEventListener('change', onChange);
     inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
+  }
+
+  /** Takes over a state read from the address. */
+  restore(state: ExplorerSnapshot): void {
+    this.selection.set([...state.selection]);
+    this.mode.set(state.mode);
+    this.showHidden.set(state.showHidden);
+    this.showMixtureGamut.set(state.showMixtureGamut);
+    this.showLinear.set(state.showLinear);
+    this.showSrgb.set(state.showSrgb);
+    this.showMixtureCloud.set(state.showMixtureCloud);
+    this.anchored.set(state.anchored);
   }
 
   /** Unselects every pigment (the "Unselect all" button). */
