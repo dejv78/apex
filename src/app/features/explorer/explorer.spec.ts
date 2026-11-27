@@ -212,6 +212,96 @@ describe('Explorer controls', () => {
     }
   });
 
+  describe('touch devices', () => {
+    /** Runs `body` with `(pointer: coarse)` matching, as on a phone. */
+    async function withTouch(body: () => Promise<void>) {
+      const original = window.matchMedia;
+      window.matchMedia = ((query: string) =>
+        query === '(pointer: coarse)'
+          ? {
+              matches: true,
+              addEventListener: () => undefined,
+              removeEventListener: () => undefined,
+            }
+          : original.call(window, query)) as typeof matchMedia;
+      try {
+        await body();
+      } finally {
+        window.matchMedia = original;
+      }
+    }
+    /** Screen position of a pigment's marker, with the SVG shown 1:1 (jsdom has no layout). */
+    function place(el: HTMLElement, name: string) {
+      const svg = el.querySelector('svg')!;
+      (svg as unknown as { getScreenCTM: () => unknown }).getScreenCTM = () => ({
+        a: 1,
+        d: 1,
+        e: 0,
+        f: 0,
+      });
+      const hit = Array.from(el.querySelectorAll('circle.hit')).find((c) =>
+        c.textContent?.includes(name),
+      )!;
+      return { svg, x: +hit.getAttribute('cx')!, y: +hit.getAttribute('cy')! };
+    }
+    const tap = (target: Element, x: number, y: number) =>
+      target.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+
+    it('draws the markers larger than for a mouse', async () => {
+      const mouse = await setup();
+      const radius = (el: HTMLElement) => +el.querySelector('circle.pigment')!.getAttribute('r')!;
+      const endRadius = (el: HTMLElement) => +el.querySelector('circle.end')!.getAttribute('r')!;
+      const [mouseR, mouseEnd] = [radius(mouse.el), endRadius(mouse.el)];
+      expect(mouseR).toBe(7);
+      TestBed.resetTestingModule();
+      await withTouch(async () => {
+        const touch = await setup();
+        expect(radius(touch.el)).toBeCloseTo(mouseR * 1.6);
+        expect(endRadius(touch.el)).toBeCloseTo(mouseEnd * 1.6);
+      });
+    });
+
+    it('selects the pigment nearest to a tap, even beside the marker, and ignores a miss', async () => {
+      await withTouch(async () => {
+        const { fixture, el, ends } = await setup();
+        const viridian = place(el, 'Viridian');
+        tap(viridian.svg, viridian.x + 12, viridian.y - 9); // 15 px off the marker's center
+        await fixture.whenStable();
+        expect(ends()).toBe(3);
+
+        const lemon = place(el, 'Lemon yellow'); // a selected pigment: a tap beside it removes it
+        tap(lemon.svg, lemon.x - 10, lemon.y + 10);
+        await fixture.whenStable();
+        expect(ends()).toBe(2);
+
+        tap(viridian.svg, -30, -30); // nowhere near a pigment: nothing happens
+        await fixture.whenStable();
+        expect(ends()).toBe(2);
+      });
+    });
+
+    it('toggles once, not twice, when the tap lands on the marker itself', async () => {
+      await withTouch(async () => {
+        const { fixture, el, ends } = await setup();
+        const viridian = place(el, 'Viridian');
+        const hit = Array.from(el.querySelectorAll('circle.hit')).find((c) =>
+          c.textContent?.includes('Viridian'),
+        )!;
+        tap(hit, viridian.x, viridian.y);
+        await fixture.whenStable();
+        expect(ends()).toBe(3);
+      });
+    });
+
+    it('keeps a mouse to direct hits: a click beside a marker does nothing', async () => {
+      const { fixture, el, ends } = await setup();
+      const viridian = place(el, 'Viridian');
+      tap(viridian.svg, viridian.x + 3, viridian.y); // on the plot, not on a marker's circle
+      await fixture.whenStable();
+      expect(ends()).toBe(2);
+    });
+  });
+
   it('drops the adding hint from the help at the connection limit', async () => {
     const { el, click, ends } = await setup();
     const selected = () =>

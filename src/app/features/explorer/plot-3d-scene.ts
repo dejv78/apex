@@ -51,6 +51,12 @@ import {
   type Vec3,
   type ViewPreset,
 } from './plot-3d-geometry';
+import {
+  TOUCH_MARKER_SCALE,
+  TOUCH_PICK_RADIUS,
+  nearestTarget,
+  type PickTarget,
+} from './pick-nearest';
 
 /** The mixing path as the scene draws it: interior dots, one or two end markers, optional line. */
 export interface PathView {
@@ -212,6 +218,9 @@ export class ColorScene {
 
   private pigmentMesh: InstancedMesh | null = null;
   private pigmentList: readonly Pigment[] = [];
+  private lastPath: PathView | null = null;
+  /** Touch device: larger markers (see `setTouch`) and nearest-pigment picking for taps. */
+  private touch = false;
   private dotMesh: InstancedMesh | null = null;
   private dotTips: string[] = [];
   private endMeshes: Mesh[] = [];
@@ -281,7 +290,7 @@ export class ColorScene {
   setPigments(pigments: readonly Pigment[]): void {
     clearGroup(this.pigmentGroup);
     this.pigmentList = pigments;
-    const geometry = new SphereGeometry(PIGMENT_RADIUS, 14, 10);
+    const geometry = new SphereGeometry(PIGMENT_RADIUS * this.markerScale, 14, 10);
     const mesh = new InstancedMesh(geometry, new MeshBasicMaterial(), pigments.length);
     const outline = new InstancedMesh(
       geometry,
@@ -302,7 +311,23 @@ export class ColorScene {
     this.requestRender();
   }
 
+  /**
+   * Touch devices get larger pigment and end markers and pick the pigment nearest to a tap (see
+   * `pick-nearest.ts`). Rebuilds the markers already set, so it can come at any time.
+   */
+  setTouch(touch: boolean): void {
+    if (touch === this.touch) return;
+    this.touch = touch;
+    this.setPigments(this.pigmentList);
+    this.setPath(this.lastPath);
+  }
+
+  private get markerScale(): number {
+    return this.touch ? TOUCH_MARKER_SCALE : 1;
+  }
+
   setPath(path: PathView | null): void {
+    this.lastPath = path;
     clearGroup(this.pathGroup);
     this.dotMesh = null;
     this.dotTips = [];
@@ -340,7 +365,8 @@ export class ColorScene {
 
     for (const end of path.ends) {
       const [x, y, z] = toScene(end.lab);
-      const sphere = new SphereGeometry(END_RADIUS, 18, 14);
+      const endRadius = END_RADIUS * this.markerScale;
+      const sphere = new SphereGeometry(endRadius, 18, 14);
       const mesh = new Mesh(sphere, new MeshBasicMaterial({ color: new Color(end.hex) }));
       mesh.position.set(x, y, z);
       mesh.userData['pigment'] = end.pigment;
@@ -352,7 +378,7 @@ export class ColorScene {
       this.endMeshes.push(mesh);
       if (end.truth) {
         const [tx, ty, tz] = toScene(end.truth);
-        const truth = ringSprite(END_RADIUS * 1.35, 0.8);
+        const truth = ringSprite(endRadius * 1.35, 0.8);
         truth.position.set(tx, ty, tz);
         this.pathGroup.add(truth);
       }
@@ -607,9 +633,34 @@ export class ColorScene {
     this.pressAt = null;
     if (!press || e.button !== 0) return;
     if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > CLICK_SLOP) return;
-    const hit = this.hitTest(e);
-    if (hit?.pigment) this.callbacks.onPick(hit.pigment);
+    const pigment = this.touch ? this.nearestPigment(e) : this.hitTest(e)?.pigment;
+    if (pigment) this.callbacks.onPick(pigment);
   };
+
+  /**
+   * Touch: the pigment whose marker is nearest to the tap on the screen, within
+   * `TOUCH_PICK_RADIUS` pixels. Candidates are all visible pigments and the selected ones (which
+   * may be hidden from the plot); among equally close ones the nearer to the camera wins.
+   */
+  private nearestPigment(event: { clientX: number; clientY: number }): Pigment | null {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const targets: PickTarget<Pigment>[] = [];
+    const add = (pigment: Pigment, position: Vector3) => {
+      const p = position.clone().project(this.camera);
+      if (p.z > 1) return; // behind the camera
+      targets.push({
+        x: rect.left + ((p.x + 1) / 2) * rect.width,
+        y: rect.top + ((1 - p.y) / 2) * rect.height,
+        item: pigment,
+        depth: p.z,
+      });
+    };
+    for (const pigment of this.pigmentList) add(pigment, v3(toScene(pigment.oklab)));
+    for (const mesh of this.endMeshes) {
+      add(mesh.userData['pigment'] as Pigment, mesh.position);
+    }
+    return nearestTarget(targets, event.clientX, event.clientY, TOUCH_PICK_RADIUS);
+  }
 
   private readonly onPointerMove = (e: PointerEvent): void => {
     if (e.buttons !== 0) return;

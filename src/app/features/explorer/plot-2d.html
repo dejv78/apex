@@ -91,7 +91,7 @@
       [class.fugitive]="m.pigment.fugitive"
       [attr.cx]="m.x"
       [attr.cy]="m.y"
-      r="7"
+      [attr.r]="markerR()"
       [attr.fill]="m.pigment.hex"
     />
   }
@@ -101,7 +101,7 @@
     }
     @for (end of t.ends; track end.pigment.id) {
       @if (end.truth; as truth) {
-        <circle class="truth" [attr.cx]="truth.x" [attr.cy]="truth.y" r="11">
+        <circle class="truth" [attr.cx]="truth.x" [attr.cy]="truth.y" [attr.r]="truthR()">
           <title>{{ end.pigment.name }}: true color, outside what the model reproduces</title>
         </circle>
       }
@@ -116,7 +116,7 @@
         class="end"
         [attr.cx]="end.dot.x"
         [attr.cy]="end.dot.y"
-        r="8"
+        [attr.r]="endR()"
         [attr.fill]="end.dot.hex"
         (click)="pick(end.pigment)"
       >
@@ -129,7 +129,7 @@
       class="end"
       [attr.cx]="s.x"
       [attr.cy]="s.y"
-      r="8"
+      [attr.r]="endR()"
       [attr.fill]="s.hex"
       (click)="pick(s.pigment)"
     >

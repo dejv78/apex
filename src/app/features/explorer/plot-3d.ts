@@ -96,6 +96,10 @@ export class Plot3d {
     });
 
     effect(() => {
+      const touch = this.state.touchOnly();
+      if (this.ready()) this.scene?.setTouch(touch);
+    });
+    effect(() => {
       const pigments = this.state.visible();
       if (this.ready()) this.scene?.setPigments(pigments);
     });
