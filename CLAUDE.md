@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-paxt (shown to users as "Artists palette explorer", ADR 0011) is an educational web app for painters: color relationships, gamut, and visualizing how physical pigments mix. Angular, hosted on GitHub Pages at `/paxt/`. Personal, non-commercial project that may become public. Sibling project `../moody` is inspiration and the seed pigment dataset (`src/app/color-wheel/pigments.ts`), not code to port.
+apex (Artists Palette EXplorer, shown to users as "Artists palette explorer", ADR 0011, ADR 0015) is an educational web app for painters: color relationships, gamut, and visualizing how physical pigments mix. Angular, hosted on GitHub Pages at `/apex/`. Personal, non-commercial project that may become public. Sibling project `../moody` is inspiration and the seed pigment dataset (`src/app/color-wheel/pigments.ts`), not code to port.
 
 Read `docs/roadmap.md` for current status and `docs/decisions/` for why things are the way they are. Work proceeds one milestone at a time, each approved by the user before the next starts.
 
@@ -13,7 +13,7 @@ Read `docs/roadmap.md` for current status and `docs/decisions/` for why things a
 - `npm start`: dev server
 - `npm test -- --watch=false`: run all tests (Vitest via `ng test`); one file: `npm test -- --watch=false --include='src/app/app.spec.ts'`
 - `npm run lint`, `npm run format` / `format:check` (Prettier)
-- `npm run build:pages`: production build with `--base-href /paxt/` (what CI and deploy use)
+- `npm run build:pages`: production build with `--base-href /apex/` (what CI and deploy use)
 
 CI (`.github/workflows/ci.yml`) runs format check, lint, tests, build. Deploy runs from `master`; GitHub Pages must have source "GitHub Actions" enabled in repo settings.
 

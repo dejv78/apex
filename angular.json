@@ -8,7 +8,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "paxt": {
+    "apex": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "paxt:build:production"
+              "buildTarget": "apex:build:production"
             },
             "development": {
-              "buildTarget": "paxt:build:development"
+              "buildTarget": "apex:build:development"
             }
           },
           "defaultConfiguration": "development"

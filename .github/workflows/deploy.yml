@@ -22,10 +22,10 @@ jobs:
       - run: npm test -- --watch=false
       - run: npm run build:pages
       # Single-page app fallback: unknown paths serve the app (client-side routing).
-      - run: cp dist/paxt/browser/index.html dist/paxt/browser/404.html
+      - run: cp dist/apex/browser/index.html dist/apex/browser/404.html
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: dist/paxt/browser
+          path: dist/apex/browser
 
   deploy:
     needs: build

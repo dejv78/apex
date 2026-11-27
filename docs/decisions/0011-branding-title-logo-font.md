@@ -1,6 +1,7 @@
 # 0011: Branding: title, logo and title font
 
-Status: Accepted (2026-11-26)
+Status: Accepted (2026-11-26). The "paxt stays the repository and code name" line is superseded by
+[0015](0015-project-name-apex.md).
 
 ## Context
 

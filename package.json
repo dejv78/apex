@@ -1,5 +1,5 @@
 {
-  "name": "paxt",
+  "name": "apex",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build:pages": "ng build --base-href /paxt/"
+    "build:pages": "ng build --base-href /apex/"
   },
   "private": true,
   "packageManager": "npm@11.19.1",
