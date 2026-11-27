@@ -186,22 +186,22 @@ describe('Explorer controls', () => {
         .textContent!.replace(/\s+/g, ' ')
         .trim();
     expect(help()).toBe(
-      'Click a pigment to add it to the mix. Click a selected pigment to remove it.',
+      'Click on an unselected pigment to add it to the mix. Click on a selected pigment to remove it.',
     );
-    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Click a pigment');
+    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Click on');
 
     el.querySelector<HTMLButtonElement>('button.unselect-all')!.click();
     await fixture.whenStable();
-    expect(help()).toBe('Click a pigment to select it.');
+    expect(help()).toBe('Click on a pigment to select it.');
 
     await click('Lemon yellow');
     expect(help()).toBe(
-      'Click another pigment to mix it with the selected one. Click the selected pigment to unselect it.',
+      'Click on another pigment to mix it with the selected one. Click on the selected pigment to unselect it.',
     );
 
     await click('Viridian');
     expect(help()).toBe(
-      'Click a pigment to add it to the mix. Click a selected pigment to remove it.',
+      'Click on an unselected pigment to add it to the mix. Click on a selected pigment to remove it.',
     );
     expect(help()).not.toMatch(/shift|ctrl|anchor/i); // no modifier keys, no anchor, anywhere
   });
@@ -213,9 +213,17 @@ describe('Explorer controls', () => {
     el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
     await fixture.whenStable();
     expect(help()).toContain('Drag to rotate, scroll to zoom, right-drag to pan.');
-    expect(help()).toContain('Click a pigment to add it to the mix.'); // the click help stays
+    expect(help()).toContain('Click on an unselected pigment to add it to the mix.'); // the click help stays
     const actions = Array.from(el.querySelectorAll('p.help .action')).map((a) => a.textContent);
-    expect(actions).toEqual(expect.arrayContaining(['Click', 'Drag', 'scroll', 'right-drag']));
+    expect(actions).toEqual(
+      expect.arrayContaining([
+        'Click on an unselected pigment',
+        'Click on a selected pigment',
+        'Drag',
+        'scroll',
+        'right-drag',
+      ]),
+    );
     expect(help()).not.toContain('*');
     expect(el.textContent).not.toContain('view buttons');
     expect(el.querySelector('aside.panel')!.textContent).not.toContain('Drag to rotate');
@@ -234,7 +242,7 @@ describe('Explorer controls', () => {
     try {
       const { fixture, el } = await setup();
       const help = () => el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ');
-      expect(help()).toContain('Click a pigment to add it to the mix.'); // same click help as a mouse
+      expect(help()).toContain('Click on an unselected pigment to add it to the mix.'); // same click help as a mouse
       expect(help()).not.toMatch(/shift|ctrl/i);
       el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
       await fixture.whenStable();
@@ -354,7 +362,7 @@ describe('Explorer controls', () => {
     }
     expect(ends()).toBe(20);
     const help = el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ').trim();
-    expect(help).toBe('Click a selected pigment to remove it.');
+    expect(help).toBe('Click on a selected pigment to remove it.');
   });
 
   it('draws the click targets above the path dots and end markers, so they never block a click', async () => {

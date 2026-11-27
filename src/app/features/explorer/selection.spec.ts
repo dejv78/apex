@@ -53,24 +53,25 @@ describe('selectionHelp', () => {
   const text = (selection: string[]) => selectionHelp(selection).join(' ').replaceAll('*', '');
 
   it('offers selecting a pigment when nothing is selected', () => {
-    expect(text([])).toBe('Click a pigment to select it.');
+    expect(text([])).toBe('Click on a pigment to select it.');
   });
 
   it('offers mixing another pigment or unselecting when one is selected', () => {
     expect(text(['a'])).toBe(
-      'Click another pigment to mix it with the selected one. Click the selected pigment to unselect it.',
+      'Click on another pigment to mix it with the selected one. Click on the selected pigment to unselect it.',
     );
   });
 
   it('offers adding and removing once there are several', () => {
-    const help = 'Click a pigment to add it to the mix. Click a selected pigment to remove it.';
+    const help =
+      'Click on an unselected pigment to add it to the mix. Click on a selected pigment to remove it.';
     expect(text(['a', 'b'])).toBe(help);
     expect(text(['a', 'b', 'c'])).toBe(help);
     expect(text(ids(19))).toBe(help);
   });
 
   it('leaves out adding pigments when the connection limit is reached', () => {
-    expect(text(ids(20))).toBe('Click a selected pigment to remove it.');
+    expect(text(ids(20))).toBe('Click on a selected pigment to remove it.');
   });
 
   it('never mentions modifier keys or an anchor, in any state', () => {

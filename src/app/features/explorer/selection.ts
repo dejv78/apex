@@ -49,16 +49,19 @@ export function togglePigment(selection: readonly string[], id: string): string[
  */
 export function selectionHelp(selection: readonly string[]): string[] {
   const count = selection.length;
-  if (count === 0) return ['*Click* a pigment to select it.'];
+  if (count === 0) return ['*Click on a pigment* to select it.'];
   if (count === 1) {
     return [
-      '*Click* another pigment to mix it with the selected one.',
-      '*Click* the selected pigment to unselect it.',
+      '*Click on another pigment* to mix it with the selected one.',
+      '*Click on the selected pigment* to unselect it.',
     ];
   }
   return canAddPigment(selection)
-    ? ['*Click* a pigment to add it to the mix.', '*Click* a selected pigment to remove it.']
-    : ['*Click* a selected pigment to remove it.'];
+    ? [
+        '*Click on an unselected pigment* to add it to the mix.',
+        '*Click on a selected pigment* to remove it.',
+      ]
+    : ['*Click on a selected pigment* to remove it.'];
 }
 
 export interface HelpPart {
