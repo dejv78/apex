@@ -118,6 +118,13 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* The plus in front of the label of "Add pigment...": a little smaller, with a gap to the text. */
+.icon.plus {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.4rem;
+  vertical-align: -3px;
+}
 /* A solid icon (the clear-list symbol) instead of an outline one. */
 .icon.filled {
   fill: currentColor;
