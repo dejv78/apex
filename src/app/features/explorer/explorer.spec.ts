@@ -132,6 +132,82 @@ describe('Explorer controls', () => {
     expect(el.textContent).not.toContain('Limit reached');
   });
 
+  it('clears the whole selection with the "Unselect all" button, which is hidden when empty', async () => {
+    const { fixture, el, click, ends, dots, labels } = await setup();
+    const button = () => el.querySelector<HTMLButtonElement>('button.unselect-all');
+    expect(button()?.textContent).toContain('Unselect all');
+    expect(el.querySelector('.panel-head h2')?.textContent).toContain('Mix pigments');
+    expect(el.querySelector('.panel-head button.unselect-all')).not.toBeNull(); // same row
+    await click('Viridian', { shiftKey: true });
+    await click('Cobalt blue', { shiftKey: true });
+    expect(ends()).toBe(4);
+
+    button()!.click();
+    await fixture.whenStable();
+    expect(ends()).toBe(0);
+    expect(dots()).toBe(0);
+    expect(labels()).toEqual(['Anchor']);
+    expect(button()).toBeNull();
+
+    await click('Lemon yellow'); // selecting again brings the button back
+    expect(ends()).toBe(1);
+    expect(button()).not.toBeNull();
+  });
+
+  it('shows help under the plot, in the plot column, that follows what a click can do', async () => {
+    const { fixture, el, click, ends } = await setup();
+    /** The help as rendered: the browser collapses runs of whitespace. */
+    const helpEl = () => el.querySelector<HTMLElement>('section.plot > p.help')!;
+    const help = () => ({ textContent: helpEl().textContent!.replace(/\s+/g, ' ').trim() });
+    expect(help().textContent).toContain('Shift+click adds a pigment');
+    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Shift+click');
+
+    el.querySelector<HTMLButtonElement>('button.unselect-all')!.click();
+    await fixture.whenStable();
+    expect(help().textContent!.trim()).toBe('Click a pigment to select it as the anchor.');
+
+    await click('Lemon yellow');
+    expect(help().textContent).toContain('Click another pigment to mix it with the anchor.');
+    expect(help().textContent).toContain('move the anchor');
+    expect(help().textContent).not.toContain('Shift+click');
+
+    await click('Viridian');
+    expect(help().textContent).toContain('instead of the current partner');
+    await click('Cobalt blue', { shiftKey: true });
+    expect(ends()).toBe(3);
+    expect(help().textContent).toContain('dropping the other partners');
+  });
+
+  it('adds the camera controls to the help line in 3D, and no sidebar hint or view-button text', async () => {
+    const { fixture, el } = await setup();
+    const help = () => el.querySelector('p.help')!.textContent!.replace(/\s+/g, ' ').trim();
+    expect(help()).not.toContain('Drag to rotate');
+    el.querySelector<HTMLElement>('mat-button-toggle[value="3d"] button')!.click();
+    await fixture.whenStable();
+    expect(help()).toContain('Drag to rotate, scroll to zoom, right-drag to pan.');
+    expect(help()).toContain('Shift+click adds a pigment'); // the click help stays
+    const actions = Array.from(el.querySelectorAll('p.help .action')).map((a) => a.textContent);
+    expect(actions).toEqual(
+      expect.arrayContaining(['Drag', 'scroll', 'right-drag', 'Shift+click']),
+    );
+    expect(help()).not.toContain('*');
+    expect(el.textContent).not.toContain('view buttons');
+    expect(el.querySelector('aside.panel')!.textContent).not.toContain('Drag to rotate');
+  });
+
+  it('drops the shift+click hint at the connection limit', async () => {
+    const { el, click, ends } = await setup();
+    const names = Array.from(el.querySelectorAll<SVGCircleElement>('circle.hit')).map((c) =>
+      c.querySelector('title')!.textContent!.trim(),
+    );
+    for (const name of names) {
+      if (ends() >= 20) break;
+      await click(name, { shiftKey: true });
+    }
+    expect(ends()).toBe(20);
+    expect(el.querySelector('p.help')!.textContent).not.toContain('Shift+click');
+  });
+
   it('draws the click targets above the path dots and end markers, so they never block a click', async () => {
     const { el } = await setup();
     const hits = Array.from(el.querySelectorAll('circle.hit'));

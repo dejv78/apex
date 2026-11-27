@@ -21,6 +21,21 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.help {
+  /* Under the plot, in its own grid column, so a tall side panel never touches it. */
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  /* A color, not opacity, so the highlighted actions below stay pure white. */
+  color: rgba(17, 17, 17, 0.8);
+}
+.help .action {
+  color: #ffffff;
+  font-weight: 600;
+}
+.help span + span {
+  margin-left: 0.4em;
+}
 .panel {
   background: #6a6a6a;
   color: #f2f2f2;
@@ -45,6 +60,19 @@
 }
 .panel mat-form-field {
   width: 100%;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* As tall as the button, so the panel does not jump when the button comes and goes. */
+  min-height: 32px;
+}
+.unselect-all {
+  --mat-button-outlined-container-height: 32px;
+  --mat-button-outlined-label-text-color: #f2f2f2;
+  --mat-button-outlined-outline-color: rgba(255, 255, 255, 0.6);
+  --mat-button-outlined-state-layer-color: #fff;
 }
 .advanced {
   --mat-expansion-container-background-color: transparent;

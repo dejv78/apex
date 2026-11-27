@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSelectModule } from '@angular/material/select';
@@ -6,6 +7,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { PIGMENT_DATASET, type Pigment } from '../../../core/pigments/pigments';
 import { ExplorerState } from './explorer-state';
+import { helpParts } from './selection';
 import { Plot2d } from './plot-2d';
 import { Plot3d } from './plot-3d';
 
@@ -14,6 +16,7 @@ import { Plot3d } from './plot-3d';
   selector: 'app-explorer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatButtonModule,
     MatButtonToggleModule,
     MatExpansionModule,
     MatSelectModule,
@@ -29,6 +32,8 @@ import { Plot3d } from './plot-3d';
 export class Explorer {
   protected readonly state = inject(ExplorerState);
   protected readonly source = PIGMENT_DATASET.source;
+
+  protected readonly helpParts = helpParts;
 
   protected label(p: Pigment): string {
     return `${p.name} (${p.code})`;

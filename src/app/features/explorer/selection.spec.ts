@@ -3,7 +3,9 @@ import {
   canAddPigment,
   connectionCount,
   clickPigment,
+  helpParts,
   makeAnchor,
+  selectionHelp,
   setSlot,
   slotsFor,
   togglePigment,
@@ -159,5 +161,67 @@ describe('makeAnchor (ctrl+click)', () => {
     const input = ['a', 'b'];
     makeAnchor(input, 'b');
     expect(input).toEqual(['a', 'b']);
+  });
+});
+
+describe('selectionHelp', () => {
+  /** The help as the user reads it, without the `*action*` markers. */
+  const text = (selection: string[]) => selectionHelp(selection).join(' ').replaceAll('*', '');
+
+  it('only offers selecting the anchor when nothing is selected', () => {
+    expect(text([])).toBe('Click a pigment to select it as the anchor.');
+  });
+
+  it('offers mixing, moving the anchor and unselecting it when only the anchor is selected', () => {
+    expect(selectionHelp(['a']).map((l) => l.replaceAll('*', ''))).toEqual([
+      'Click another pigment to mix it with the anchor.',
+      'Ctrl+click a pigment to move the anchor there.',
+      'Click the anchor to unselect it.',
+    ]);
+    expect(text(['a'])).not.toContain('Shift+click');
+  });
+
+  it('describes replacing the partner of a pair, adding, re-anchoring and unselecting', () => {
+    const help = text(['a', 'b']);
+    expect(help).toContain('instead of the current partner');
+    expect(help).toContain('Shift+click adds a pigment');
+    expect(help).toContain('Ctrl+click makes a pigment the anchor');
+    expect(help).toContain('unselect it');
+  });
+
+  it('warns that a plain click drops the other partners once there are several', () => {
+    expect(text(['a', 'b', 'c'])).toContain('dropping the other partners');
+    expect(text(['a', 'b'])).not.toContain('dropping');
+  });
+
+  it('leaves out adding pigments when the connection limit is reached', () => {
+    expect(text(ids(19))).toContain('Shift+click adds');
+    expect(text(ids(20))).not.toContain('Shift+click');
+    expect(text(ids(20))).toContain('Ctrl+click makes a pigment the anchor');
+  });
+});
+
+describe('helpParts', () => {
+  it('splits a line into plain text and highlighted actions', () => {
+    expect(helpParts('*Shift+click* adds a pigment.')).toEqual([
+      { text: 'Shift+click', action: true },
+      { text: ' adds a pigment.', action: false },
+    ]);
+    expect(helpParts('*Drag* to rotate, *scroll* to zoom.')).toEqual([
+      { text: 'Drag', action: true },
+      { text: ' to rotate, ', action: false },
+      { text: 'scroll', action: true },
+      { text: ' to zoom.', action: false },
+    ]);
+    expect(helpParts('No actions here.')).toEqual([{ text: 'No actions here.', action: false }]);
+  });
+
+  it('marks an action at the start of every help line, and never leaves a marker unpaired', () => {
+    for (const selection of [[], ['a'], ['a', 'b'], ['a', 'b', 'c'], ids(20)]) {
+      for (const line of selectionHelp(selection)) {
+        expect(line.split('*').length % 2).toBe(1);
+        expect(helpParts(line)[0].action).toBe(true);
+      }
+    }
   });
 });

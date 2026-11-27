@@ -28,10 +28,35 @@
         <p class="hint loading">Loading the 3D view…</p>
       }
     }
+    <p class="help">
+      @for (line of state.help(); track line) {
+        <span>
+          @for (part of helpParts(line); track $index) {
+            @if (part.action) {
+              <b class="action">{{ part.text }}</b>
+            } @else {
+              {{ part.text }}
+            }
+          }
+        </span>
+      }
+    </p>
   </section>
 
   <aside class="panel">
-    <h2>Mix pigments</h2>
+    <div class="panel-head">
+      <h2>Mix pigments</h2>
+      @if (state.selection().length > 0) {
+        <button
+          mat-stroked-button
+          class="unselect-all"
+          type="button"
+          (click)="state.clearSelection()"
+        >
+          Unselect all
+        </button>
+      }
+    </div>
     @for (slot of state.slots(); track slot.index) {
       <mat-form-field>
         <mat-label>{{ slot.label }}</mat-label>
@@ -54,17 +79,6 @@
       <p class="hint">
         Limit reached: at most {{ state.maxConnections }} mixing trails are drawn. Remove a pigment
         to add another.
-      </p>
-    }
-    <p class="hint">
-      Click a pigment on the plot to make it the anchor, then click another to mix it with the
-      anchor. Shift+click adds more pigments, each mixed with all the others. Click a selected
-      pigment to remove it. Ctrl+click makes a pigment the anchor.
-    </p>
-    @if (state.mode() === '3d') {
-      <p class="hint">
-        Drag to rotate, scroll to zoom, right-drag to pan. The view buttons jump to the top, front
-        or side.
       </p>
     }
 

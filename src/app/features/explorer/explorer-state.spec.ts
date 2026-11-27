@@ -94,6 +94,19 @@ describe('ExplorerState', () => {
     expect(state.pairs()[0].samples).toBe(before);
   });
 
+  it('clears the whole selection at once', () => {
+    const state = setup();
+    state.pick(
+      state.allPigments.find((p) => p.id === 'viridian')!,
+      { additive: true },
+    );
+    state.clearSelection();
+    expect(state.selection()).toEqual([]);
+    expect(state.pairs()).toEqual([]);
+    expect(state.solo()).toBeNull();
+    expect(state.slots().map((s) => s.id)).toEqual([null]);
+  });
+
   it('keeps the dropdown rules: a taken pigment is disabled elsewhere, clearing the anchor promotes', () => {
     const state = setup();
     expect(state.isTaken('lemon-yellow', 1)).toBe(true);

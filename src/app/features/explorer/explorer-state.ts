@@ -16,12 +16,16 @@ import {
   canAddPigment,
   clickPigment,
   makeAnchor,
+  selectionHelp,
   setSlot,
   slotsFor,
   togglePigment,
 } from './selection';
 
 export type ViewMode = '2d' | '3d';
+
+/** Camera controls of the 3D view, appended to the help line there. */
+const CAMERA_HELP = '*Drag* to rotate, *scroll* to zoom, *right-drag* to pan.';
 
 /** Ratio steps per pigment pair when sampling the mixture gamut. */
 export const MIXTURE_STEPS = 8;
@@ -64,6 +68,11 @@ export class ExplorerState {
   /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
   readonly atLimit = computed(() => !canAddPigment(this.selection()));
   readonly maxConnections = MAX_CONNECTIONS;
+  /** What a click can do now (plus how to move the camera in 3D), for the help line under the plot. */
+  readonly help = computed(() => {
+    const lines = selectionHelp(this.selection());
+    return this.mode() === '3d' ? [...lines, CAMERA_HELP] : lines;
+  });
 
   readonly visible = computed(() =>
     this.showHidden() ? PIGMENTS : PIGMENTS.filter((p) => !p.hideByDefault),
@@ -121,6 +130,11 @@ export class ExplorerState {
   /** A dropdown picked a pigment, or cleared its slot. */
   pickInSlot(index: number, id: string | null): void {
     this.selection.update((sel) => setSlot(sel, index, id));
+  }
+
+  /** Unselects every pigment (the "Unselect all" button). */
+  clearSelection(): void {
+    this.selection.set([]);
   }
 
   /** Disables a dropdown option that is already selected in another dropdown. */

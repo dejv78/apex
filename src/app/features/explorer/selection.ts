@@ -84,3 +84,47 @@ export function slotsFor(selection: readonly string[]): Slot[] {
     label: index === 0 ? 'Anchor' : 'Mix with',
   }));
 }
+
+/**
+ * The click actions available right now, as short sentences for the help line under the plot. It
+ * mirrors the rules above and lists only what a click can do in the current state, so it must
+ * change together with them (`selection.spec.ts` pins the wording per state).
+ *
+ * Actions are wrapped in `*...*` (see `helpParts`). Shift+click adding is left out at `MAX_CONNECTIONS` (it would be refused); the side panel
+ * explains the limit.
+ */
+export function selectionHelp(selection: readonly string[]): string[] {
+  const count = selection.length;
+  if (count === 0) return ['*Click* a pigment to select it as the anchor.'];
+  if (count === 1) {
+    return [
+      '*Click* another pigment to mix it with the anchor.',
+      '*Ctrl+click* a pigment to move the anchor there.',
+      '*Click* the anchor to unselect it.',
+    ];
+  }
+  const help =
+    count === 2
+      ? ['*Click* a pigment to mix it with the anchor instead of the current partner.']
+      : ['*Click* a pigment to mix only it with the anchor, dropping the other partners.'];
+  if (canAddPigment(selection)) help.push('*Shift+click* adds a pigment to the mix.');
+  help.push(
+    '*Ctrl+click* makes a pigment the anchor.',
+    '*Click* a selected pigment to unselect it.',
+  );
+  return help;
+}
+
+export interface HelpPart {
+  text: string;
+  /** The user action (a click, a drag, ...) rather than its explanation: shown highlighted. */
+  action: boolean;
+}
+
+/** Splits a help line into plain and highlighted parts; `*action*` marks an action. */
+export function helpParts(line: string): HelpPart[] {
+  return line
+    .split('*')
+    .map((text, i) => ({ text, action: i % 2 === 1 }))
+    .filter((part) => part.text !== '');
+}
