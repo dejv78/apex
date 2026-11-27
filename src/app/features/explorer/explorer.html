@@ -89,16 +89,16 @@
 
     <h2>View</h2>
     <mat-slide-toggle
+      [checked]="state.showHidden()"
+      (change)="state.showHidden.set($event.checked)"
+    >
+      Show all available pigments ({{ state.allPigments.length }})
+    </mat-slide-toggle>
+    <mat-slide-toggle
       [checked]="state.showMixtureGamut()"
       (change)="state.showMixtureGamut.set($event.checked)"
     >
       Mixture gamut
-    </mat-slide-toggle>
-    <mat-slide-toggle
-      [checked]="state.showHidden()"
-      (change)="state.showHidden.set($event.checked)"
-    >
-      Show all pigments ({{ state.allPigments.length }})
     </mat-slide-toggle>
 
     <mat-accordion>

@@ -47,8 +47,8 @@ describe('Explorer controls', () => {
     }));
     const visible = toggleLabels.filter((t) => !t.advanced).map((t) => t.text);
     expect(visible.length).toBe(2);
-    expect(visible[0]).toContain('Mixture gamut');
-    expect(visible[1]).toContain('Show all pigments');
+    expect(visible[0]).toContain('Show all available pigments');
+    expect(visible[1]).toContain('Mixture gamut');
     const advanced = toggleLabels.filter((t) => t.advanced).map((t) => t.text);
     expect(advanced.length).toBe(3);
     expect(el.textContent).not.toContain('Gamut area');
