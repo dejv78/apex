@@ -76,3 +76,17 @@ export function hexToOklab(hex: string): Oklab {
 export function oklabToHex(color: Oklab): string {
   return srgbToHex(oklabToSrgb(color));
 }
+
+/** WCAG relative luminance of an sRGB color (channels in [0, 1]). */
+function relativeLuminance({ r, g, b }: Srgb): number {
+  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Black or white, whichever has the higher WCAG contrast ratio against the background. */
+export function readableTextColor(background: Srgb): '#000000' | '#ffffff' {
+  const l = relativeLuminance(clampSrgb(background));
+  const contrastWithBlack = (l + 0.05) / 0.05;
+  const contrastWithWhite = 1.05 / (l + 0.05);
+  return contrastWithBlack >= contrastWithWhite ? '#000000' : '#ffffff';
+}

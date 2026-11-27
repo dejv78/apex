@@ -70,7 +70,7 @@ describe('ExplorerState', () => {
       'ultramarine-deep',
     ]);
     expect(state.pairs()).toHaveLength(6);
-    expect(state.slots()).toHaveLength(5);
+    expect(state.selected().map((p) => p.id)).toEqual(state.selection());
     // Every trail runs between exactly its two pigments.
     for (const { a, b, samples } of state.pairs()) {
       expect(samples[0].color.a).toBeCloseTo(a.oklab.a, 9);
@@ -107,7 +107,7 @@ describe('ExplorerState', () => {
     expect(state.selection()).toEqual([]);
     expect(state.pairs()).toEqual([]);
     expect(state.solo()).toBeNull();
-    expect(state.slots().map((s) => s.id)).toEqual([null]);
+    expect(state.selected()).toEqual([]);
   });
 
   it('describes the 3D camera with fingers on touch devices, and with the mouse otherwise', () => {
@@ -127,13 +127,12 @@ describe('ExplorerState', () => {
     expect(text()).not.toMatch(/shift|ctrl/i);
   });
 
-  it('keeps the dropdown rules: a taken pigment is disabled elsewhere, clearing a dropdown removes it', () => {
+  it('unselects a pigment by id, leaving the others in order', () => {
     const state = setup();
-    expect(state.isTaken('lemon-yellow', 1)).toBe(true);
-    expect(state.isTaken('lemon-yellow', 0)).toBe(false);
-    state.pickInSlot(0, null);
+    state.unselect('lemon-yellow');
     expect(state.selection()).toEqual(['phthalo-blue-reddish']);
-    expect(state.slots().map((s) => s.label)).toEqual(['Pigment', 'Add a pigment']);
+    state.unselect('not-selected');
+    expect(state.selection()).toEqual(['phthalo-blue-reddish']);
   });
 
   it('samples the mixtures for the 3D point cloud alone, without the hull (and not in 2D)', () => {

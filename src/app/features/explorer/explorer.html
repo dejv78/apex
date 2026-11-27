@@ -57,23 +57,28 @@
         </button>
       }
     </div>
-    @for (slot of state.slots(); track slot.index) {
-      <mat-form-field>
-        <mat-label>{{ slot.label }}</mat-label>
-        <mat-select
-          [value]="slot.id"
-          (selectionChange)="state.pickInSlot(slot.index, $event.value)"
-        >
-          @if (slot.id !== null) {
-            <mat-option [value]="null">None</mat-option>
-          }
-          @for (p of state.allPigments; track p.id) {
-            <mat-option [value]="p.id" [disabled]="state.isTaken(p.id, slot.index)">
-              {{ label(p) }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    @if (state.selected().length === 0) {
+      <p class="hint">No pigments selected. Click a pigment in the plot to select it.</p>
+    } @else {
+      <mat-chip-set class="chips" aria-label="Selected pigments">
+        @for (p of state.selected(); track p.id) {
+          <mat-chip-row
+            [style.--mat-chip-elevated-container-color]="p.hex"
+            [style.--mat-chip-label-text-color]="textColor(p)"
+            [style.--mat-chip-with-trailing-icon-trailing-icon-color]="textColor(p)"
+            [style.--mat-chip-with-icon-icon-color]="textColor(p)"
+            [editable]="false"
+            (removed)="state.unselect(p.id)"
+          >
+            <b>{{ p.code }}</b> {{ p.name }}
+            <button matChipRemove [attr.aria-label]="'Remove ' + p.name">
+              <svg class="cross" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-set>
     }
     @if (state.atLimit()) {
       <p class="hint">

@@ -1,14 +1,12 @@
 /**
  * The pigments chosen for mixing, as an ordered list of ids (ADR 0013). Every selected pigment is
- * mixed with every other one, so the order only decides the dropdown order. Pure functions, so the
- * click and dropdown rules are testable.
+ * mixed with every other one, so the order only decides the chip order. Pure functions, so the
+ * click rules are testable.
  *
  * Rules:
  * - Clicking (or tapping) an unselected pigment adds it to the selection; clicking a selected one
  *   removes it (see `togglePigment`). There are no modifier keys: a mouse and a finger do the same.
  * - Adding a pigment that would exceed `MAX_CONNECTIONS` is refused; removing is always allowed.
- * - There are always `selection.length + 1` dropdowns, unless adding a pigment would exceed
- *   `MAX_CONNECTIONS`.
  */
 
 /**
@@ -32,13 +30,6 @@ export function canAddPigment(selection: readonly string[]): boolean {
   return connectionCount(selection.length + 1) <= MAX_CONNECTIONS;
 }
 
-export interface Slot {
-  index: number;
-  /** Selected pigment id, or `null` for the empty dropdown that adds the next pigment. */
-  id: string | null;
-  label: string;
-}
-
 /**
  * A click on a pigment: add it if it is not selected, remove it if it is. Adding is refused (the
  * selection is unchanged) when it would exceed `MAX_CONNECTIONS`.
@@ -46,27 +37,6 @@ export interface Slot {
 export function togglePigment(selection: readonly string[], id: string): string[] {
   if (selection.includes(id)) return selection.filter((s) => s !== id);
   return canAddPigment(selection) ? [...selection, id] : [...selection];
-}
-
-/**
- * A dropdown picked a pigment (`id`) or cleared its slot (`null`). Picking in the empty slot
- * appends; a pigment that is already selected elsewhere is ignored (the UI disables it too).
- */
-export function setSlot(selection: readonly string[], index: number, id: string | null): string[] {
-  if (id === null) return selection.filter((_, i) => i !== index);
-  if (selection.some((s, i) => s === id && i !== index)) return [...selection];
-  if (index >= selection.length)
-    return canAddPigment(selection) ? [...selection, id] : [...selection];
-  return selection.map((s, i) => (i === index ? id : s));
-}
-
-export function slotsFor(selection: readonly string[]): Slot[] {
-  const count = selection.length + (canAddPigment(selection) ? 1 : 0);
-  return Array.from({ length: count }, (_, index) => ({
-    index,
-    id: selection[index] ?? null,
-    label: index < selection.length ? 'Pigment' : 'Add a pigment',
-  }));
 }
 
 /**

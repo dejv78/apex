@@ -73,8 +73,26 @@
 .credits a {
   color: inherit;
 }
-.panel mat-form-field {
-  width: 100%;
+.chips {
+  display: block;
+}
+/* Each chip takes the pigment color and a black or white text from the template. */
+.chips mat-chip-row {
+  --mat-chip-outline-width: 1px;
+  --mat-chip-outline-color: rgba(255, 255, 255, 0.6);
+  --mat-chip-container-height: 32px;
+  max-width: 100%;
+}
+.chips mat-chip-row b {
+  margin-right: 0.3em;
+}
+.cross {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
 }
 .panel-head {
   display: flex;

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Explorer } from './explorer';
+import { ExplorerState } from './explorer-state';
 
 describe('Explorer controls', () => {
   async function setup() {
@@ -18,17 +19,21 @@ describe('Explorer controls', () => {
     };
     const dots = () => el.querySelectorAll('circle.dot').length;
     const ends = () => el.querySelectorAll('circle.end').length;
-    const labels = () =>
-      Array.from(el.querySelectorAll('mat-form-field mat-label')).map((l) => l.textContent?.trim());
-    return { fixture, el, click, dots, ends, labels, marker };
+    const chips = () => Array.from(el.querySelectorAll<HTMLElement>('mat-chip-row'));
+    const chipTexts = () => chips().map((c) => c.textContent?.replace(/\s+/g, ' ').trim());
+    return { fixture, el, click, dots, ends, chips, chipTexts, marker };
   }
 
-  it('starts with a pre-selected pair and a dropdown for each pigment plus an empty one', async () => {
-    const { el, dots, ends, labels } = await setup();
+  it('starts with a pre-selected pair, shown as a chip for each pigment', async () => {
+    const { el, dots, ends, chipTexts } = await setup();
     expect(dots()).toBeGreaterThan(10);
     expect(ends()).toBe(2);
     expect(el.querySelector('.anchor-ring')).toBeNull(); // no anchor: all pigments are equal
-    expect(labels()).toEqual(['Pigment', 'Pigment', 'Add a pigment']);
+    expect(chipTexts()).toEqual([
+      expect.stringContaining('Lemon yellow'),
+      expect.stringContaining('Phthalo blue reddish'),
+    ]);
+    expect(el.querySelector('mat-select')).toBeNull(); // chips replace the dropdowns
   });
 
   it('shows only the basic controls, with the rest inside a collapsed "Advanced" accordion', async () => {
@@ -50,14 +55,15 @@ describe('Explorer controls', () => {
   });
 
   it('adds a clicked pigment with a trail to each of the others, and removes it when clicked again', async () => {
-    const { click, dots, ends, labels, el } = await setup();
+    const { click, dots, ends, chipTexts, el } = await setup();
     const pairDots = dots();
     expect(ends()).toBe(2);
 
     await click('Viridian'); // a plain click adds: trails to both others
     expect(ends()).toBe(3);
     expect(dots()).toBeGreaterThan(pairDots * 1.5);
-    expect(labels()).toEqual(['Pigment', 'Pigment', 'Pigment', 'Add a pigment']);
+    expect(chipTexts()).toHaveLength(3);
+    expect(chipTexts()[2]).toContain('Viridian'); // new pigments are appended
 
     await click('Cobalt blue');
     expect(ends()).toBe(4);
@@ -74,7 +80,8 @@ describe('Explorer controls', () => {
     await click('Cobalt blue');
     expect(ends()).toBe(0);
     expect(dots()).toBe(0);
-    expect(labels()).toEqual(['Add a pigment']);
+    expect(chipTexts()).toEqual([]);
+    expect(el.textContent).toContain('No pigments selected');
 
     await click('Lemon yellow'); // a lone pigment is shown at its true color
     expect(ends()).toBe(1);
@@ -84,8 +91,39 @@ describe('Explorer controls', () => {
     expect(dots()).toBeGreaterThan(10);
   });
 
+  it('shows each chip in the pigment color with its code, name and a readable text color', async () => {
+    const { chips, fixture } = await setup();
+    const [first, second] = chips();
+    const state = fixture.debugElement.injector.get(ExplorerState);
+    const [lemon, blue] = state.selected();
+    expect(first.textContent).toContain(`${lemon.code} ${lemon.name}`);
+    expect(second.textContent).toContain(`${blue.code} ${blue.name}`);
+    const hexToRgb = (hex: string) => {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgb(${n >> 16}, ${(n >> 8) & 255}, ${n & 255})`;
+    };
+    expect(first.style.getPropertyValue('--mat-chip-elevated-container-color')).toBe(lemon.hex);
+    expect(second.style.getPropertyValue('--mat-chip-elevated-container-color')).toBe(blue.hex);
+    expect(hexToRgb(lemon.hex)).toMatch(/^rgb/);
+    // Light yellow takes black text, the deep blue white text.
+    expect(first.style.getPropertyValue('--mat-chip-label-text-color')).toBe('#000000');
+    expect(second.style.getPropertyValue('--mat-chip-label-text-color')).toBe('#ffffff');
+  });
+
+  it('unselects a pigment with the cross on its chip', async () => {
+    const { el, chips, chipTexts, ends, fixture } = await setup();
+    expect(chips()).toHaveLength(2);
+    chips()[0].querySelector<HTMLButtonElement>('button[matChipRemove]')!.click();
+    await fixture.whenStable();
+    expect(chipTexts()).toEqual([expect.stringContaining('Phthalo blue reddish')]);
+    expect(ends()).toBe(1);
+    expect(el.querySelector('mat-chip-row button[aria-label]')?.getAttribute('aria-label')).toMatch(
+      /^Remove /,
+    );
+  });
+
   it('stops adding pigments at the connection limit and says so', async () => {
-    const { fixture, el, click, ends, labels } = await setup();
+    const { fixture, el, click, ends, chipTexts } = await setup();
     const titles = () =>
       Array.from(el.querySelectorAll<SVGCircleElement>('circle.hit')).map((c) =>
         c.querySelector('title')!.textContent!.trim(),
@@ -101,7 +139,7 @@ describe('Explorer controls', () => {
     }
     expect(ends()).toBe(20); // 190 connections
     expect(el.textContent).toContain('Limit reached');
-    expect(labels()).toEqual(Array(20).fill('Pigment')); // no empty dropdown
+    expect(chipTexts()).toHaveLength(20);
     const extra = titles().find(
       (n) =>
         !Array.from(el.querySelectorAll('circle.end title')).some((t) =>
@@ -117,7 +155,7 @@ describe('Explorer controls', () => {
   });
 
   it('clears the whole selection with the "Unselect all" button, which is hidden when empty', async () => {
-    const { fixture, el, click, ends, dots, labels } = await setup();
+    const { fixture, el, click, ends, dots, chipTexts } = await setup();
     const button = () => el.querySelector<HTMLButtonElement>('button.unselect-all');
     expect(button()?.textContent).toContain('Unselect all');
     expect(el.querySelector('.panel-head h2')?.textContent).toContain('Mix pigments');
@@ -130,7 +168,8 @@ describe('Explorer controls', () => {
     await fixture.whenStable();
     expect(ends()).toBe(0);
     expect(dots()).toBe(0);
-    expect(labels()).toEqual(['Add a pigment']);
+    expect(chipTexts()).toEqual([]);
+    expect(el.textContent).toContain('No pigments selected');
     expect(button()).toBeNull();
 
     await click('Lemon yellow'); // selecting again brings the button back

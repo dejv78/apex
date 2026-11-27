@@ -11,14 +11,7 @@ import {
   samplePairMixtures,
 } from '../../../core/mixing/sampling';
 import { PIGMENTS, pigmentById, type Pigment } from '../../../core/pigments/pigments';
-import {
-  MAX_CONNECTIONS,
-  canAddPigment,
-  selectionHelp,
-  setSlot,
-  slotsFor,
-  togglePigment,
-} from './selection';
+import { MAX_CONNECTIONS, canAddPigment, selectionHelp, togglePigment } from './selection';
 
 export type ViewMode = '2d' | '3d';
 
@@ -63,7 +56,8 @@ export class ExplorerState {
 
   /** Ids of the pigments to mix, each with every other (see `selection.ts` for the rules). */
   readonly selection = signal<string[]>(['lemon-yellow', 'phthalo-blue-reddish']);
-  readonly slots = computed(() => slotsFor(this.selection()));
+  /** The selected pigments, in selection order (the chips in the panel). */
+  readonly selected = computed<Pigment[]>(() => this.selection().map(pigmentById));
   /** The selection cannot grow: one more pigment would exceed `MAX_CONNECTIONS` trails. */
   readonly atLimit = computed(() => !canAddPigment(this.selection()));
   readonly maxConnections = MAX_CONNECTIONS;
@@ -143,23 +137,18 @@ export class ExplorerState {
     inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
   }
 
-  /** A dropdown picked a pigment, or cleared its slot. */
-  pickInSlot(index: number, id: string | null): void {
-    this.selection.update((sel) => setSlot(sel, index, id));
-  }
-
   /** Unselects every pigment (the "Unselect all" button). */
   clearSelection(): void {
     this.selection.set([]);
   }
 
-  /** Disables a dropdown option that is already selected in another dropdown. */
-  isTaken(id: string, index: number): boolean {
-    return this.selection().some((s, i) => s === id && i !== index);
-  }
-
-  /** A pigment was clicked on a plot: it joins the selection, or leaves it if it was selected. */
+  /** A pigment was clicked on a plot  the selection, or leaves it if it was selected. */
   pick(pigment: Pigment): void {
     this.selection.update((sel) => togglePigment(sel, pigment.id));
+  }
+
+  /** A pigment's chip was removed (the cross on the chip). */
+  unselect(id: string): void {
+    this.selection.update((sel) => sel.filter((s) => s !== id));
   }
 }

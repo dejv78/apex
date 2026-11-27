@@ -1,10 +1,12 @@
 import {
   hexToOklab,
+  hexToSrgb,
   isInSrgbGamut,
   oklabToHex,
   oklabToOklch,
   oklabToSrgb,
   oklchToOklab,
+  readableTextColor,
   srgbToOklab,
 } from './color';
 
@@ -57,5 +59,27 @@ describe('color', () => {
   it('formats hex and clamps out-of-gamut values', () => {
     expect(oklabToHex(hexToOklab('#336699'))).toBe('#336699');
     expect(oklabToHex({ l: 0.5, a: 0.3, b: 0.3 })).toMatch(/^#[0-9a-f]{6}$/);
+  });
+});
+
+describe('readableTextColor', () => {
+  it('picks white on dark backgrounds and black on light ones', () => {
+    expect(readableTextColor({ r: 0, g: 0, b: 0 })).toBe('#ffffff');
+    expect(readableTextColor({ r: 1, g: 1, b: 1 })).toBe('#000000');
+    expect(readableTextColor(hexToSrgb('#1a237e'))).toBe('#ffffff'); // deep blue
+    expect(readableTextColor(hexToSrgb('#fff176'))).toBe('#000000'); // light yellow
+  });
+
+  it('always reaches a contrast ratio of at least 4.5 (WCAG AA) on a grid of colors', () => {
+    const lum = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    for (let r = 0; r <= 1; r += 0.25)
+      for (let g = 0; g <= 1; g += 0.25)
+        for (let b = 0; b <= 1; b += 0.25) {
+          const l = 0.2126 * lum(r) + 0.7152 * lum(g) + 0.0722 * lum(b);
+          const text = readableTextColor({ r, g, b });
+          const t = text === '#ffffff' ? 1 : 0;
+          const ratio = (Math.max(l, t) + 0.05) / (Math.min(l, t) + 0.05);
+          expect(ratio).toBeGreaterThanOrEqual(4.5);
+        }
   });
 });

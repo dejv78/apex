@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { hexToSrgb, readableTextColor } from '../../../core/color/color';
 import { PIGMENT_DATASET, type Pigment } from '../../../core/pigments/pigments';
 import { ExplorerState } from './explorer-state';
 import { helpParts } from './selection';
@@ -18,8 +19,8 @@ import { Plot3d } from './plot-3d';
   imports: [
     MatButtonModule,
     MatButtonToggleModule,
+    MatChipsModule,
     MatExpansionModule,
-    MatSelectModule,
     MatSlideToggleModule,
     MatToolbarModule,
     Plot2d,
@@ -35,7 +36,8 @@ export class Explorer {
 
   protected readonly helpParts = helpParts;
 
-  protected label(p: Pigment): string {
-    return `${p.name} (${p.code})`;
+  /** Black or white, whichever reads better on the pigment's color. */
+  protected textColor(p: Pigment): string {
+    return readableTextColor(hexToSrgb(p.hex));
   }
 }
