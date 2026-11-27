@@ -13,5 +13,5 @@ letters (Artists Palette EXplorer). Capitalizing the title as that acronym, with
 
 The title shown to users is **Artists Palette Explorer** (toolbar, `<title>`, README): each word
 capitalized, no internal capital. The acronym spelling "Artists Palette EXplorer" is only used to
-explain the name (README, CLAUDE.md, ADR 0015). The name in code, repository and URL stays
+explain the name (CLAUDE.md, ADR 0015). The name in code, repository and URL stays
 lowercase `apex`.
